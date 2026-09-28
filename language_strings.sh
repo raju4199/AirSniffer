@@ -1941,7 +1941,7 @@ function initialize_language_strings() {
 	arr["ARABIC",59]="0.  العودة إلى القائمة الرئيسية"
 	arr["CHINESE",59]="0.  返回主菜单"
 
-	arr["ENGLISH",60]="12. About & Credits / Sponsorship mentions"
+	arr["ENGLISH",60]="12. About & Credits"
 	arr["SPANISH",60]="12. Acerca de & Créditos / Menciones de patrocinadores"
 	arr["FRENCH",60]="12. À propos de & Crédits / Mentions du sponsors"
 	arr["CATALAN",60]="12. Sobre & Crédits / Mencions de sponsors"
@@ -2515,7 +2515,7 @@ function initialize_language_strings() {
 	arr["ARABIC",100]="Michael Shutdown معايير"
 	arr["CHINESE",100]="迈克尔关机 (TKIP) 参数"
 
-	arr["ENGLISH",101]="airsniffer ${normal_color}v${airsniffer_version}${green_color_title} main menu"
+	arr["ENGLISH",101]="AirSniffer ${normal_color}v${airsniffer_version}${green_color_title} main menu"
 	arr["SPANISH",101]="Menú principal airsniffer ${normal_color}v${airsniffer_version}${green_color_title}"
 	arr["FRENCH",101]="Menu principal d'airsniffer ${normal_color}v${airsniffer_version}${green_color_title}"
 	arr["CATALAN",101]="Menú principal airsniffer ${normal_color}v${airsniffer_version}${green_color_title}"
@@ -11069,7 +11069,7 @@ function initialize_language_strings() {
 	arr["ARABIC",711]="\${normal_color}\${urlgithub_wiki}/FAQ%20&%20Troubleshooting#can-the-evil-twin-captive-portal-page-be-customized-if-so-how \${blue_color}:تذكر أنه يمكن أيضًا تخصيص البوابة المقيدة لهجوم أكثر تفصيلاً. تحقق من المعلومات حول كيفية القيام بذلك على \${normal_color}"
 	arr["CHINESE",711]="请记住，脚本还支持自定义强制门户以进行更有针对性的攻击。在 Wiki 上查看有关如何操作的信息: \${normal_color}\${urlgithub_wiki}/FAQ%20&%20Troubleshooting#can-the-evil-twin-captive-portal-page-be-customized-if-so -如何"
 
-	arr["ENGLISH",712]="Another way to contribute to the project is buying some merchandising (mugs, T-shirts, etc.). A little portion of each payment (after deducting material, printing and shipping) will be to support the project. Check the merchandising online shop at: \${normal_color}\${urlmerchandising_shop}"
+	arr["ENGLISH",712]="Tip: in the Evil Twin captive portal, enable advanced mode to auto-detect the target's vendor and serve a matching login template. Star or contribute to the project on GitHub: \${normal_color}\${urlmerchandising_shop}"
 	arr["SPANISH",712]="Otra forma de contribuir al proyecto es comprando algún producto de merchandising (tazas, camisetas, etc.). Una pequeña parte de cada pago (después de deducir el material, la impresión y el envío) será para apoyar el proyecto. Consulta la tienda online de merchandising en: \${normal_color}\${urlmerchandising_shop}"
 	arr["FRENCH",712]="Une autre façon de contribuer au projet c'est d'acheter du merchandising (mugs, T-shirts, etc.). Une petite partie de chaque paiement (après déduction du matériel, de l'impression et de l'expédition) servira à soutenir le projet. Consultez la boutique en ligne de merchandising à: \${normal_color}\${urlmerchandising_shop}"
 	arr["CATALAN",712]="Una altra manera de contribuir al projecte és comprar algun marxandatge (tasses, samarretes, etc.). Una petita part de cada pagament (després de deduir el material, la impressió i l'enviament) servirà per donar suport al projecte. Consulteu la botiga online de marxandatge a: \${normal_color}\${urlmerchandising_shop}"
