@@ -12986,6 +12986,10 @@ function initialize_language_strings() {
 	arr["TURKISH",848]="iptables/nftables yüklü olmasına rağmen sistem NAT desteğine sahip değil. Bu nedenle saldırı başlatılamıyor. Gerekli kernel modüllerini yüklemeli veya NAT destekli bir kernel kullanmalısın"
 	arr["ARABIC",848]="NAT يدعم  kernel أو استخدام kernel modules لذلك لا يمكن بدءالهجوم. يجب تثبيت .NAT فإن النظام لا يدعم .iptables/nftables على الرغم من تثبيت"
 	arr["CHINESE",848]="\${pending_of_translation} 尽管已安装 iptables/nftables，但系统不支持 NAT。因此，无法启动攻击。你必须安装所需的 kernel modules，或使用支持 NAT 的 kernel"
+
+	arr["ENGLISH",849]="Warning: this target is WPA3, which enforces Protected Management Frames (802.11w). Deauthentication frames are ignored by protected clients, so this deauth will most likely have NO effect on already-connected devices"
+
+	arr["ENGLISH",850]="For WPA3/PMF targets, prefer the \"WPA3 attacks menu\" (SAE), try an \"Auth DoS\" (uses unprotected pre-association frames), or capture NEW associations to the rogue AP instead of forcing existing clients off"
 }
 
 #Expand escaped variables in language strings with their current values

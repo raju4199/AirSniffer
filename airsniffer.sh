@@ -5738,6 +5738,19 @@ pid_control_pursuit_mode() {
 	kill_dos_pursuit_mode_processes
 }
 
+#Warn when a deauth-based attack targets a WPA3 network (mandatory PMF/802.11w),
+#where deauthentication frames are ignored by protected clients. Informational only.
+function warn_pmf_deauth() {
+
+	debug_print
+
+	if [ "${enc}" = "WPA3" ]; then
+		echo
+		language_strings "${language}" 849 "red"
+		language_strings "${language}" 850 "yellow"
+	fi
+}
+
 #Execute mdk deauth DoS attack
 function exec_mdkdeauth() {
 
@@ -5746,6 +5759,7 @@ function exec_mdkdeauth() {
 	echo
 	language_strings "${language}" 89 "title"
 	language_strings "${language}" 32 "green"
+	warn_pmf_deauth
 
 	rm -rf "${tmpdir}bl.txt" > /dev/null 2>&1
 	echo "${bssid}" > "${tmpdir}bl.txt"
@@ -5778,6 +5792,7 @@ function exec_aireplaydeauth() {
 	echo
 	language_strings "${language}" 90 "title"
 	language_strings "${language}" 32 "green"
+	warn_pmf_deauth
 
 	echo
 	if [ "${dos_pursuit_mode}" -eq 1 ]; then
@@ -12245,6 +12260,7 @@ function exec_et_deauth() {
 
 	debug_print
 
+	warn_pmf_deauth
 	prepare_et_monitor
 
 	case ${et_dos_attack} in
