@@ -8171,7 +8171,7 @@ function initialize_language_strings() {
 	arr["ARABIC",504]="\${normal_color}\${visual_choice}\${green_color} هل تريد المتابعة؟\${blue_color} .كاملة من نقطة الوصول المستهدفة للحصول على البيانات الضرورية \"probe\" هذه ليست غيرمتصلة بالإنترنت بالكامل. مطلوب استجابة PIN عملية حساب رقم التعريف الشخصي\${normal_color}"
 	arr["CHINESE",504]="\${blue_color}这个PIN计算过程并不完全是离线的。目标接入点需要一个完整的“探测”响应来获取必要的数据。\${green_color}你想继续吗？\${normal_color}\${visual_choice}"
 
-	arr["ENGLISH",505]="Do you want to enable \"DoS pursuit mode\"? \${blue_color}This will re-launch the attack if target AP change its channel countering \"channel hopping\" \${normal_color}\${visual_choice}"
+	arr["ENGLISH",505]="Do you want to enable \"DoS pursuit mode\"? \${blue_color}It runs the deauth from a second, dedicated Wi-Fi adapter so your captive portal AP stays stable, and it re-launches the attack if the target AP changes channel (countering \"channel hopping\") \${normal_color}\${visual_choice}"
 	arr["SPANISH",505]="¿Deseas activar el \"modo persecución DoS\"? \${blue_color}Esto relanzará el ataque si el AP objetivo cambia de canal contrarrestando el \"channel hopping\" \${normal_color}\${visual_choice}"
 	arr["FRENCH",505]="Voulez-vous activer le \"mode de poursuite DoS\"? \${blue_color}Cela relancera l'attaque si le AP cible change de canal en contrecarrant le \"channel hopping\" \${normal_color}\${visual_choice}"
 	arr["CATALAN",505]="¿Vols activar el \"mode persecució DoS\"? \${blue_color}Això rellançarà l'atac si l'AP objectiu canvia de canal contrarestant el \"channel hopping\" \${normal_color}\${visual_choice}"
