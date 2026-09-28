@@ -37,21 +37,31 @@ researchers** who need repeatable results without the boilerplate.
   through monitor-mode setup and channel selection.
 - **Full attack surface coverage** — WEP, WPA/WPA2 and WPA3 (SAE) auditing, PMKID capture,
   handshake capture, and WPS assessment (Pixie-Dust, bruteforce, known-PIN database).
-- **Evil Twin suite with vendor-aware captive portals** — the rogue AP now fingerprints the
+- **Evil Twin suite with vendor-aware captive portals** — the rogue AP fingerprints the
   target gateway by its OUI and renders a matching, professional portal template
   automatically (see below).
+- **Dedicated dual-adapter deauth** — when a second Wi-Fi adapter is present, the Evil Twin
+  flow automatically runs the deauth from that adapter (and follows the target across
+  channels), keeping the captive-portal AP stable (see below).
+- **WPA3 / PMF awareness** — before a deauth-based attack, Airsniffer warns you when the
+  target enforces Protected Management Frames (802.11w), so you don't waste time on
+  techniques modern networks ignore (see below).
 - **Offline cracking** — dictionary, bruteforce and rule-based attacks with `aircrack-ng`
   and `hashcat` (GPU-accelerated) integration.
-- **DoS toolkit** — multiple deauthentication and jamming methods for controlled
-  resilience testing.
+- **DoS toolkit** — deauthentication, Auth DoS, beacon flood, WDS confusion and more for
+  controlled resilience testing.
 - **Extensible plugin system** — drop-in hooks let you extend or override behaviour without
   patching the core script.
-- **Multi-language & reporting** — localised interface and structured capture logs for
-  clean deliverables.
+- **Multi-language interface** — localised menus with an English fallback for new strings.
 
 ---
 
-## New: Vendor-Aware Evil Twin Templates
+## What's New in This Fork
+
+Airsniffer builds on airgeddon with a refreshed interface and several practical upgrades to
+make engagements more effective against modern (2025+) networks.
+
+### Vendor-aware Evil Twin templates
 
 When the *advanced captive portal* mode is enabled, Airsniffer reads the target access
 point's MAC OUI, identifies the hardware vendor, and serves a portal styled to match that
@@ -65,9 +75,30 @@ own gateway.
 | Netgear, Asus, Linksys, Belkin, Zyxel, Mercusys, … | `consumer` | Soft-shadowed "Wi-Fi Router Login" card |
 | Anything unrecognised | `modern` | Polished Airsniffer default theme |
 
-The vendor's real brand colours and logo (already shipped with the tool) drive the theme,
-while the underlying credential-validation flow — live verification against the captured
-handshake — is unchanged.
+The vendor's real brand colours and logo (shipped with the tool) drive the theme, while the
+credential-validation flow — live verification against the captured handshake — is unchanged.
+
+### Automatic dedicated deauth adapter
+
+Running the deauth on the same radio as the rogue AP destabilises the captive portal. When a
+**second Wi-Fi adapter** is connected, Airsniffer now **defaults DoS pursuit mode to on** in
+the Evil Twin flow and auto-selects the free adapter for the deauth — so one radio serves the
+AP + portal while the other handles the deauth and even follows the target if it changes
+channel. With a single adapter, behaviour is unchanged.
+
+### WPA3 / PMF effectiveness warning
+
+WPA3 enforces Protected Management Frames (802.11w), which makes clients ignore
+deauthentication frames. Before a deauth-based DoS or Evil Twin herding attack, Airsniffer now
+detects a WPA3 target and **warns that the deauth will likely have no effect**, pointing you
+to PMF-resilient alternatives (the WPA3/SAE menu, an Auth DoS, or capturing new associations
+instead of forcing existing clients off). This saves time and avoids false "target is secure"
+conclusions.
+
+### Refreshed interface
+
+New animated intro (ANSI wordmark + mascot), consistent branded menu headers across every
+screen, and professional, de-branded wording throughout.
 
 ---
 
