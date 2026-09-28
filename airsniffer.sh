@@ -876,7 +876,7 @@ function generate_dynamic_line() {
 	done
 
 	if [ "${type}" = "title" ]; then
-		finaltitle="${finaltitle} ${titletext} "
+		finaltitle="${finaltitle}« ${titletext} »"
 	elif [ "${type}" = "separator" ]; then
 		finaltitle="${finaltitle} (${titletext}) "
 	fi
