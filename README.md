@@ -14,6 +14,12 @@
 
 *Discover · Audit · Report — from a single, menu-driven console.*
 
+<br>
+
+![WPA2 capture-and-crack workflow](imgs/banners/airsniffer_workflow.gif)
+
+*The core workflow: deauth a client, capture the WPA2 four-way handshake, then crack it offline.*
+
 </div>
 
 ---
