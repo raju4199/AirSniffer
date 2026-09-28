@@ -861,10 +861,10 @@ function generate_dynamic_line() {
 		else
 			ncharstitle=78
 		fi
-		titlechar="*"
+		titlechar="═"
 	elif [ "${type}" = "separator" ]; then
 		ncharstitle=58
-		titlechar="-"
+		titlechar="─"
 	fi
 
 	titletext=${1}
