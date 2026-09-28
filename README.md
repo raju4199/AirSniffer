@@ -20,6 +20,12 @@
 
 *The core workflow: deauth a client, capture the WPA2 four-way handshake, then crack it offline.*
 
+<br>
+
+![Evil Twin with a vendor-matched captive portal](imgs/banners/airsniffer_evil_twin.gif)
+
+*Evil Twin: fingerprint the AP's OUI to serve a vendor-matched portal, herd the client over with a dedicated deauth radio, and verify every submitted PSK against the captured handshake.*
+
 </div>
 
 ---
