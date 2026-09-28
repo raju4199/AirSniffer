@@ -3074,7 +3074,16 @@ function dos_pursuit_mode_et_handler() {
 
 	debug_print
 
-	ask_yesno 505 "no"
+	#Auto-enable DoS pursuit mode when a second Wi-Fi adapter is available, so the
+	#deauth runs on the free adapter and the captive portal AP stays stable.
+	local pursuit_default="no"
+	local -a available_dos_ifaces
+	readarray -t available_dos_ifaces < <(iw dev 2> /dev/null | grep "Interface" | awk '{print $2}' | grep "${interface}" -v)
+	if [ "${#available_dos_ifaces[@]}" -ge 1 ]; then
+		pursuit_default="yes"
+	fi
+
+	ask_yesno 505 "${pursuit_default}"
 	if [ "${yesno}" = "y" ]; then
 		dos_pursuit_mode=1
 
