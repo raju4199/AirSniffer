@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you believe you have found a security vulnerability in airgeddon, please report it privately instead of opening a public issue.
+If you believe you have found a security vulnerability in airsniffer, please report it privately instead of opening a public issue.
 
-You can contact the airgeddon staff through any of the methods listed in the Contact section of the wiki:
+You can contact the airsniffer staff through any of the methods listed in the Contact section of the wiki:
 
-https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Contact
+https://github.com/v1s1t0r1sh3r3/airsniffer/wiki/Contact
 
 Please include as much detail as possible so the issue can be reviewed and reproduced.
 

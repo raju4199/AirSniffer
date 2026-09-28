@@ -34,10 +34,10 @@ jobs:
         id: release_data
         shell: bash
         run: |
-          version="$(grep -E '^airgeddon_version="' airgeddon.sh | head -n 1 | cut -d '"' -f 2)"
+          version="$(grep -E '^airsniffer_version="' airsniffer.sh | head -n 1 | cut -d '"' -f 2)"
 
           if [[ ! "${version}" =~ ^[0-9]+\.[0-9]{1,2}$ ]]; then
-            echo "Invalid airgeddon version: ${version}"
+            echo "Invalid airsniffer version: ${version}"
             exit 1
           fi
 

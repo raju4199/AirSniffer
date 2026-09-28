@@ -2,17 +2,17 @@ name: Bug Report
 description: Create a report to help us improve
 title: "[Possible Bug]: "
 labels: ["needs triage", "bug"]
-projects: ["v1s1t0r1sh3r3/airgeddon"]
+projects: ["v1s1t0r1sh3r3/airsniffer"]
 body:
   - type: markdown
     attributes:
       value: |
-        Please, consider asking your questions in the very active Discord community before opening an issue here. Issues must be opened in English. Submissions that are incomplete or incorrectly filled out will be automatically closed. For more info, check our [Issue Creation Policy](https://github.com/v1s1t0r1sh3r3/airgeddon/blob/master/CONTRIBUTING.md#issue-creation-policy)
+        Please, consider asking your questions in the very active Discord community before opening an issue here. Issues must be opened in English. Submissions that are incomplete or incorrectly filled out will be automatically closed. For more info, check our [Issue Creation Policy](https://github.com/v1s1t0r1sh3r3/airsniffer/blob/master/CONTRIBUTING.md#issue-creation-policy)
   - type: input
     id: version
     attributes:
-      label: airgeddon version
-      description: What is your airgeddon version? You can check it at the beginning of the script, in the title on the main menu, and in the "About & Credits / Sponsorship mentions" menu option
+      label: airsniffer version
+      description: What is your airsniffer version? You can check it at the beginning of the script, in the title on the main menu, and in the "About & Credits / Sponsorship mentions" menu option
       placeholder: e.g., v11.50
     validations:
       required: true
@@ -59,7 +59,7 @@ body:
     id: terms
     attributes:
       label: Acceptance of Issue Creation Policy
-      description: By submitting this issue, you agree to follow our [Issue Creation Policy](https://github.com/v1s1t0r1sh3r3/airgeddon/blob/master/CONTRIBUTING.md#issue-creation-policy)
+      description: By submitting this issue, you agree to follow our [Issue Creation Policy](https://github.com/v1s1t0r1sh3r3/airsniffer/blob/master/CONTRIBUTING.md#issue-creation-policy)
       options:
         - label: I agree to follow this project's Issue Creation policy
           required: true

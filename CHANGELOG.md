@@ -108,7 +108,7 @@
  - Fixed issue to prevent the trap function from being executed multiple times on consecutive Ctrl+C inputs
 
 ### 11.30
- - Added Multi-instance support to launch more than one airgeddon at a time
+ - Added Multi-instance support to launch more than one airsniffer at a time
  - Improvements on 5Ghz country code check and 5Ghz band capability detection on adapters
  - Fixed bug to avoid set advanced captive portal on second time if is not desired after setting it previously
  - Now channel is automatically updated on control window during "DoS pursuit mode" for all Evil Twin attacks
@@ -179,7 +179,7 @@
 ### 10.42
  - Changed airmon compatibility check to fit same method used by airmon
  - VIF support check added before launching Evil Twin attacks
- - airgeddon version shown in title at main menu
+ - airsniffer version shown in title at main menu
  - Fixed arabic scrambled strings and added missing arabic strings to missing dependencies plugin
  - Fixed debug mode malfunction
  - Added busy ports checks on Evil Twin attacks
@@ -270,7 +270,7 @@
 
 ### 9.21
  - Fixed non-closing windows on some "DoS pursuit mode" attacks
- - Added retrocompatibility for mdk3, added option in .airgeddonrc file to handle it
+ - Added retrocompatibility for mdk3, added option in .airsnifferrc file to handle it
  - Fixed bug on WEP all-in-one attack (Fake Auth) for SSIDs containing spaces
  - Fixed repeated enterprise plain passwords captured on trophy files
  - Added custom certificates creation for enterprise attacks
@@ -284,7 +284,7 @@
  - Fixed error shown on enterprise attacks for some wifi cards
  - Fixed BeEF error due forced config file changes on BeEF 0.4.7.1 and 0.4.7.2 versions
  - Added ipv6 support for BeEF
- - Options .airgeddonrc file now also updated on automatic update keeping user's preferences
+ - Options .airsnifferrc file now also updated on automatic update keeping user's preferences
 
 ### 9.10
  - mdk3 replaced by mdk4
@@ -397,7 +397,7 @@
 ### 7.01
  - Fixed bug while changing interface mode if the destination interface name is in use
  - Removed util-linux dependency for rev use
- - The existing iptables rules before the launch of airgeddon are now restored upon exiting if modified
+ - The existing iptables rules before the launch of airsniffer are now restored upon exiting if modified
  - Fixed bug while checking for NetworkManager's version on some Linux distributions
  - Tested compatibility with Kali Linux 2017.1 and Parrot 3.5
  - Dockerfile updated
@@ -410,7 +410,7 @@
 ### 6.21
  - Improved chipset detection, lsusb added to internal tools
  - Improved internet checking. Now more methods, not only icmp
- - Fixed error executing airgeddon after auto-update on some Linux distributions
+ - Fixed error executing airsniffer after auto-update on some Linux distributions
  - Added LICENSE.md and README.md files to Kali package
 
 ### 6.20
@@ -636,7 +636,7 @@
  - New offline password decrypt menu
  - Aircrack option to perform dictionary/bruteforce attacks against capture files
  - Removed autoclean after capturing a Handshake file
- - Changed version var to airgeddon_version for future version check (auto-update feature)
+ - Changed version var to airsniffer_version for future version check (auto-update feature)
 
 ### 3.11
  - Optional autoclean captured Handshake file feature

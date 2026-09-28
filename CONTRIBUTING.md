@@ -15,15 +15,15 @@ Please note we have a [Code of Conduct], please follow it in all your interactio
 2. Before opening an issue, keep in mind that many of the common questions are already addressed in the [Wiki FAQ Section]. Please avoid asking questions that are already answered there.
 3. Filling the issue template with *ALL* the requested info is mandatory. Otherwise, the issue can be marked as "invalid" and closed immediately.
 4. Issues must be opened in English.
-5. If an issue is opened and more info is needed, `airgeddon` staff will request it. If there is no answer in 7 days or the OP is not collaborating, the issue will be closed.
-6. If the issue is not related to airgeddon or the root cause is out of scope, it will be closed. `airgeddon` staff is not a helpdesk support service.
-7. Try to be sure that your problem is related to airgeddon and that is not a driver issue. A good practice is always to try to perform the same operation without using `airgeddon` in order to see if the problem or the behavior can be reproduced. In that case, probably the issue should not be created.
-8. Don't talk or mention references to other tools. If you want to talk about other similar tools you can do it on their pages/GitHub. `airgeddon` issues are to talk about `airgeddon`.
+5. If an issue is opened and more info is needed, `airsniffer` staff will request it. If there is no answer in 7 days or the OP is not collaborating, the issue will be closed.
+6. If the issue is not related to airsniffer or the root cause is out of scope, it will be closed. `airsniffer` staff is not a helpdesk support service.
+7. Try to be sure that your problem is related to airsniffer and that is not a driver issue. A good practice is always to try to perform the same operation without using `airsniffer` in order to see if the problem or the behavior can be reproduced. In that case, probably the issue should not be created.
+8. Don't talk or mention references to other tools. If you want to talk about other similar tools you can do it on their pages/GitHub. `airsniffer` issues are to talk about `airsniffer`.
 
 ## Collaborating Translators
 
 1. ALWAYS ask before starting a translation to add a new language. You can do so by contacting us via email at [v1s1t0r.1s.h3r3@gmail.com], through Twitter (X) at [@OscarAkaElvis], via [IRC] channel, or on the [Discord] server. Please reach out to the development team to clarify your intentions. You will then be informed about how to proceed.
-2. Translate the strings located in `language_strings.sh`, the existing strings of _language_strings_handling_messages_ function in `airgeddon.sh` and the strings of _missing_dependencies_text_ function in `missing_dependencies.sh` (this last file is in plugins dir).
+2. Translate the strings located in `language_strings.sh`, the existing strings of _language_strings_handling_messages_ function in `airsniffer.sh` and the strings of _missing_dependencies_text_ function in `missing_dependencies.sh` (this last file is in plugins dir).
 3. If you want to create a pull request with a new language to be added, at least the 80% of the phrases must be translated and the rest must be done with at least _an automatic-translation_ system and marked with PoT (Pending of Translation) mark. Anyway, always ask first.
 4. Remember that pull requests done over `master` branch will be rejected. Read the git workflow policy first.
 5. After verification of and acceptation of the pull request, you can be added as a collaborator on the project to push directly on the repository instead of submitting pull requests.
@@ -34,11 +34,11 @@ Please note we have a [Code of Conduct], please follow it in all your interactio
 #### For direct interaction with the repository (plugins development excluded):
 
 1. First ask ALWAYS before performing a development. Ask the developement team to set what is going to be.
-2. Tweak *"AIRGEDDON_DEVELOPMENT_MODE"* variable to "true" for faster development skipping intro and initial checks or change *"AIRGEDDON_DEBUG_MODE"* variable for verbosity.
+2. Tweak *"AIRSNIFFER_DEVELOPMENT_MODE"* variable to "true" for faster development skipping intro and initial checks or change *"AIRSNIFFER_DEBUG_MODE"* variable for verbosity.
 3. Respect the **4 width tab indentation**, code style and the **UTF-8 encoding**.
 4. Use **LF** (Unix) line break type (not CR or CRLF).
-5. Use [Shellcheck] to search for errors and warnings on code. (Thanks [xtonousou] for the tip :wink:). To avoid false positive warnings you must launch shellcheck using `-a -x` arguments to follow source files and from the directory where `airgeddon.sh` is. For example: `~# cd /path/to/airgeddon && shellcheck -a -x airgeddon.sh`
-6. Increase the version numbers in `airgeddon.sh`, in [Readme] and in [Changelog] to the new version that the script represents. The versioning scheme we use is *X.YZ*. Where:
+5. Use [Shellcheck] to search for errors and warnings on code. (Thanks [xtonousou] for the tip :wink:). To avoid false positive warnings you must launch shellcheck using `-a -x` arguments to follow source files and from the directory where `airsniffer.sh` is. For example: `~# cd /path/to/airsniffer && shellcheck -a -x airsniffer.sh`
+6. Increase the version numbers in `airsniffer.sh`, in [Readme] and in [Changelog] to the new version that the script represents. The versioning scheme we use is *X.YZ*. Where:
   - *X* is a major release with a new menu (e.g. WPS menu)
   - *Y* is a minor release with a new feature for an existing menu or a new submenu for an existing feature
   - *Z* is a minor release with new bug fixes, small modifications or code improvements
@@ -80,7 +80,7 @@ Anything can be also discussed on public [IRC] channel or [Discord] server. More
 3. Usually, commits and pull requests should be done on `dev` branch. If you have any doubt, don't hesitate to ask first.
 4. Temporary branches may be existing for specific features, be pretty sure that the branch you are going to commit on is the right one. Ask first if you have any doubt.
 5. Any branch will be finally merged to `dev`, there it will be reviewed and tested deeply before being merged to `master`.
-6. All merges from `dev` to `master` are a new `airgeddon` release. This merges to `master` will be performed and reviewed exclusively by [v1s1t0r]/[OscarAkaElvis].
+6. All merges from `dev` to `master` are a new `airsniffer` release. This merges to `master` will be performed and reviewed exclusively by [v1s1t0r]/[OscarAkaElvis].
 
 ---
 
@@ -107,8 +107,8 @@ Another way to contribute is buying some merchandising (mugs, T-shirts, etc.). A
 <br/>
 
 <div align="center">
-    <a href="https://www.paypal.com/paypalme/airgeddon"><img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/paypal_donate.png" alt="PayPal" title="PayPal"/></a>
-    <a href="https://www.buymeacoffee.com/v1s1t0r"><img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/buymeacoffee.png" alt="Buy me a coffee" title="Buy me a coffee"/></a>
+    <a href="https://www.paypal.com/paypalme/airsniffer"><img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/paypal_donate.png" alt="PayPal" title="PayPal"/></a>
+    <a href="https://www.buymeacoffee.com/v1s1t0r"><img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/buymeacoffee.png" alt="Buy me a coffee" title="Buy me a coffee"/></a>
 </div>
 
 <br/>
@@ -128,13 +128,13 @@ Another way to contribute is buying some merchandising (mugs, T-shirts, etc.). A
     </tr>
     <tr>
       <td>
-        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/bitcoin_qr.png" alt="Bitcoin" title="Bitcoin"/>
+        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/bitcoin_qr.png" alt="Bitcoin" title="Bitcoin"/>
       </td>
       <td>
-        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/bitcoincash_qr.png" alt="Bitcoin Cash" title="Bitcoin Cash"/>
+        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/bitcoincash_qr.png" alt="Bitcoin Cash" title="Bitcoin Cash"/>
       </td>
       <td>
-        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/bat_qr.png" alt="BAT" title="BAT"/>
+        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/bat_qr.png" alt="BAT" title="BAT"/>
       </td>
     </tr>
     <tr>
@@ -150,13 +150,13 @@ Another way to contribute is buying some merchandising (mugs, T-shirts, etc.). A
     </tr>
     <tr>
       <td>
-        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/ethereum_qr.png" alt="Ethereum" title="Ethereum"/>
+        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/ethereum_qr.png" alt="Ethereum" title="Ethereum"/>
       </td>
       <td>
-        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/litecoin_qr.png" alt="Litecoin" title="Litecoin"/>
+        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/litecoin_qr.png" alt="Litecoin" title="Litecoin"/>
       </td>
       <td>
-        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/pi_qr.png" alt="Pi" title="Pi"/>
+        <img src="https://raw.githubusercontent.com/v1s1t0r1sh3r3/airsniffer/master/imgs/banners/pi_qr.png" alt="Pi" title="Pi"/>
       </td>
     </tr>
   </table>
@@ -175,17 +175,17 @@ You can also contribute using your Nitro Boosts on our [Discord] server. After b
 
 <!-- Github -->
 [Shellcheck]: https://github.com/koalaman/shellcheck "shellcheck.hs"
-[Here]: https://github.com/v1s1t0r1sh3r3/airgeddon/issues/new/choose
+[Here]: https://github.com/v1s1t0r1sh3r3/airsniffer/issues/new/choose
 [xtonousou]: https://github.com/xtonousou "xT"
 [v1s1t0r]: https://github.com/v1s1t0r1sh3r3
 [OscarAkaElvis]: https://github.com/OscarAkaElvis
-[Wiki Contact Section]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Contact
-[Wiki FAQ Section]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/FAQ%20&%20Troubleshooting
-[Wiki Plugins Development Section]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Plugins%20Development
-[Wiki Plugins Hall of Fame Section]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Plugins%20Hall%20of%20Fame
+[Wiki Contact Section]: https://github.com/v1s1t0r1sh3r3/airsniffer/wiki/Contact
+[Wiki FAQ Section]: https://github.com/v1s1t0r1sh3r3/airsniffer/wiki/FAQ%20&%20Troubleshooting
+[Wiki Plugins Development Section]: https://github.com/v1s1t0r1sh3r3/airsniffer/wiki/Plugins%20Development
+[Wiki Plugins Hall of Fame Section]: https://github.com/v1s1t0r1sh3r3/airsniffer/wiki/Plugins%20Hall%20of%20Fame
 
 <!-- Other -->
 [@OscarAkaElvis]: https://twitter.com/OscarAkaElvis
 [Discord]: https://discord.gg/sQ9dgt9
 [IRC]: https://web.libera.chat/
-[merchandising-online-shop]: https://airgeddon.creator-spring.com/
+[merchandising-online-shop]: https://airsniffer.creator-spring.com/

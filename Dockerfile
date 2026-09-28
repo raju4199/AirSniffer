@@ -1,17 +1,17 @@
-#airgeddon Dockerfile
+#airsniffer Dockerfile
 
 #Base image
 FROM kalilinux/kali-rolling:latest
 
 #Credits & Data
 LABEL \
-	name="airgeddon" \
+	name="airsniffer" \
 	author="v1s1t0r <v1s1t0r.1s.h3r3@gmail.com>" \
 	maintainer="OscarAkaElvis <oscar.alfonso.diaz@gmail.com>" \
 	description="This is a multi-use bash script for Linux systems to audit wireless networks."
 
 #Env vars
-ENV AIRGEDDON_URL="https://github.com/v1s1t0r1sh3r3/airgeddon.git"
+ENV AIRSNIFFER_URL="https://github.com/v1s1t0r1sh3r3/airsniffer.git"
 ENV HASHCAT2_URL="https://github.com/v1s1t0r1sh3r3/hashcat2.0.git"
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -33,7 +33,7 @@ ENV LANG="en_US.UTF-8"
 ENV LANGUAGE="en_US:en"
 ENV LC_ALL="en_US.UTF-8"
 
-#Install airgeddon essential tools
+#Install airsniffer essential tools
 RUN \
 	apt -y install \
 	gawk \
@@ -45,7 +45,7 @@ RUN \
 	procps \
 	tmux
 
-#Install airgeddon internal tools
+#Install airsniffer internal tools
 RUN \
 	apt -y install \
 	ethtool \
@@ -65,7 +65,7 @@ RUN \
 	curl \
 	git
 
-#Install airgeddon optional tools
+#Install airsniffer optional tools
 RUN \
 	apt -y install \
 	crunch \
@@ -104,26 +104,26 @@ VOLUME /io
 #Set workdir
 WORKDIR /opt/
 
-#airgeddon install method 1 (only one method can be used, other must be commented)
-#Install airgeddon (Docker Hub automated build process)
-RUN mkdir airgeddon
-COPY . /opt/airgeddon
+#airsniffer install method 1 (only one method can be used, other must be commented)
+#Install airsniffer (Docker Hub automated build process)
+RUN mkdir airsniffer
+COPY . /opt/airsniffer
 
-#airgeddon install method 2 (only one method can be used, other must be commented)
-#Install airgeddon (manual image build)
+#airsniffer install method 2 (only one method can be used, other must be commented)
+#Install airsniffer (manual image build)
 #Uncomment git clone line and one of the ENV vars to select branch (master->latest, dev->beta)
 #ENV BRANCH="master"
 #ENV BRANCH="dev"
-#RUN git clone -b ${BRANCH} ${AIRGEDDON_URL}
+#RUN git clone -b ${BRANCH} ${AIRSNIFFER_URL}
 
 #Remove auto update
-RUN sed -i 's|AIRGEDDON_AUTO_UPDATE=true|AIRGEDDON_AUTO_UPDATE=false|' airgeddon/.airgeddonrc
+RUN sed -i 's|AIRSNIFFER_AUTO_UPDATE=true|AIRSNIFFER_AUTO_UPDATE=false|' airsniffer/.airsnifferrc
 
 #Force use of iptables
-RUN sed -i 's|AIRGEDDON_FORCE_IPTABLES=false|AIRGEDDON_FORCE_IPTABLES=true|' airgeddon/.airgeddonrc
+RUN sed -i 's|AIRSNIFFER_FORCE_IPTABLES=false|AIRSNIFFER_FORCE_IPTABLES=true|' airsniffer/.airsnifferrc
 
 #Make bash script files executable
-RUN chmod +x airgeddon/*.sh
+RUN chmod +x airsniffer/*.sh
 
 #Downgrade Hashcat
 RUN \
@@ -139,17 +139,17 @@ RUN \
 
 #Clean files
 RUN \
-	rm -rf /opt/airgeddon/imgs > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/.github > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/.editorconfig > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/CONTRIBUTING.md > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/CODE_OF_CONDUCT.md > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/SECURITY.md > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/pindb_checksum.txt > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/Dockerfile > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/binaries > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/imgs > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/.github > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/.editorconfig > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/CONTRIBUTING.md > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/CODE_OF_CONDUCT.md > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/SECURITY.md > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/pindb_checksum.txt > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/Dockerfile > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/binaries > /dev/null 2>&1 && \
 	rm -rf /opt/hashcat2.0 > /dev/null 2>&1 && \
-	rm -rf /opt/airgeddon/plugins/* > /dev/null 2>&1 && \
+	rm -rf /opt/airsniffer/plugins/* > /dev/null 2>&1 && \
 	rm -rf /tmp/* > /dev/null 2>&1 && \
 	rm -rf /var/lib/apt/lists/* > /dev/null 2>&1
 
@@ -157,7 +157,7 @@ RUN \
 EXPOSE 3000
 
 #Create volume for plugins
-VOLUME /opt/airgeddon/plugins
+VOLUME /opt/airsniffer/plugins
 
-#Start command (launching airgeddon)
-CMD ["/bin/bash", "-c", "/opt/airgeddon/airgeddon.sh"]
+#Start command (launching airsniffer)
+CMD ["/bin/bash", "-c", "/opt/airsniffer/airsniffer.sh"]

@@ -10,7 +10,7 @@ on:
       - '**.sh'
       - '**.txt'
       - '**.db'
-      - '.airgeddonrc'
+      - '.airsnifferrc'
       - 'Dockerfile'
 
   workflow_dispatch:
@@ -35,7 +35,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
-          tags: v1s1t0r1sh3r3/airgeddon:beta
+          tags: v1s1t0r1sh3r3/airsniffer:beta
           context: .
           no-cache: true
           push: true

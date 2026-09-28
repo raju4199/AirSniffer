@@ -1,124 +1,158 @@
-# airgeddon
-[![Version-shield]](https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/CHANGELOG.md) [![Bash4.2-shield]](http://tldp.org/LDP/abs/html/bashver4.html#AEN21220) [![License-shield]](https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/LICENSE.md) [![Docker-shield]](https://github.com/v1s1t0r1sh3r3/airgeddon/actions/worklows/master.yml) [![Discord-shield]](https://discord.gg/sQ9dgt9)
+<div align="center">
 
-[![Paypal-shield]](https://www.paypal.com/paypalme/airgeddon) [![Cryptocurrencies-shield]](https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Contributing-&-Code-of-Conduct)
+# Airsniffer
 
+![Banner](imgs/banners/airsniffer_banner.png)
 
-> This is a multi-use bash script for Linux systems to audit wireless networks.
+**A powerful, all-in-one wireless security auditing framework for Linux.**
 
-![Banner]
+[![Version-shield]](CHANGELOG.md)
+[![Bash-shield]](http://tldp.org/LDP/abs/html/bashver4.html#AEN21220)
+[![License-shield]](LICENSE)
+[![Platform-shield]](#requirements)
+[![Auth-shield]](#legal-disclaimer)
 
----
+*Discover · Audit · Report — from a single, menu-driven console.*
 
-All the needed info about how to "install | use | enjoy" `airgeddon` is present at [GitHub's Wiki].
-
-- *I. Content & Features*
-  - [Home]
-  - [Features]
-  - [Screenshots]
-  - [Wallpapers]
-
-
-- *II. Requirements*
-  - [Requirements]
-  - [Compatibility]
-	 - [Cards and Chipsets]
-	 - [Wayland]
-	 - [Consistent Network Device Naming]
-	 - [Kali Nethunter]
-  - [Essential Tools]
-  - [Optional Tools]
-	 - [BeEF Tips]
-	 - [Hashcat Tips]
-	 - [Bettercap Tips]
-  - [Update Tools]
-  - [Internal Tools]
-  - [Known incompatibilities]
-
-
-- *III. Getting started*
-  - [Installation & Usage]
-  - [Options]
-  - [Docker]
-	 - [Linux]
-	 - [Mac OSX]
-	 - [Windows]
-  - [Other Sources]
-  - [FAQ & Troubleshooting]
-
-
-- *IV. Learning*
-  - [CWP Certification]
-
-
-- *V. Project & Development*
-  - [Official Website]
-  - [Plugins system]
-	 - [Plugins development]
-	 - [Plugins Hall of Fame]
-  - [Supported Languages]
-  - [Contributing & Code of Conduct]
-  - [Security Policy]
-  - [Merchandising Online Shop]
-  - [Changelog]
-  - [Disclaimer & License]
-  - [Contact]
-
-
-- *VI. Acknowledgments & References*
-  - [Hat Tip To]
-  - [Inspiration]
+</div>
 
 ---
 
-[Banner]: https://raw.githubusercontent.com/v1s1t0r1sh3r3/airgeddon/master/imgs/banners/airgeddon_banner.png "We will conquer the earth!!"
-[GitHub's Wiki]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki
+## Overview
 
-[Home]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki
-[Features]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Features
-[Screenshots]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Screenshots
-[Wallpapers]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Wallpapers
-[Requirements]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Requirements
-[Compatibility]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Compatibility
-[Cards and Chipsets]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Cards%20and%20Chipsets
-[Wayland]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Wayland
-[Consistent Network Device Naming]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Consistent%20Network%20Device%20Naming
-[Kali Nethunter]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Kali%20Nethunter
-[Essential Tools]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Essential%20Tools
-[Optional Tools]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Optional%20Tools
-[BeEF Tips]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/BeEF%20Tips
-[Hashcat Tips]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Hashcat%20Tips
-[Bettercap Tips]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Bettercap%20Tips
-[Update Tools]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Update%20Tools
-[Internal Tools]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Internal%20Tools
-[Known incompatibilities]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Known%20incompatibilities
-[Installation & Usage]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Installation%20&%20Usage
-[Options]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Options
-[Docker]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Docker
-[Linux]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Docker%20Linux
-[Mac OSX]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Docker%20Mac%20OSX
-[Windows]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Docker%20Windows
-[Other Sources]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Other%20Sources
-[FAQ & Troubleshooting]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/FAQ%20&%20Troubleshooting
-[CWP Certification]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/CWP%20Certification
-[Plugins system]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Plugins%20System
-[Plugins development]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Plugins%20Development
-[Plugins Hall of Fame]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Plugins%20Hall%20of%20Fame
-[Supported Languages]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Supported%20Languages
-[Contributing & Code of Conduct]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Contributing-&-Code-of-Conduct
-[Security Policy]: https://github.com/v1s1t0r1sh3r3/airgeddon/security/policy
-[Merchandising Online Shop]: https://airgeddon.creator-spring.com/
-[Changelog]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Changelog
-[Disclaimer & License]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Disclaimer%20&%20License
-[Contact]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Contact
-[Hat Tip To]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Hat%20Tip%20To
-[Inspiration]: https://github.com/v1s1t0r1sh3r3/airgeddon/wiki/Inspiration
-[Official Website]: https://airgeddon.pro/
+**Airsniffer** is a modular Bash toolkit that unifies the entire Wi-Fi audit workflow into
+one guided, terminal-based interface. Instead of memorising a dozen separate command-line
+tools and their flags, you drive the whole engagement — interface setup, discovery,
+handshake capture, offline cracking, and rogue-AP assessment — from a clean, interactive
+menu with sane defaults and safety checks at every step.
 
-[Version-shield]: https://img.shields.io/badge/version-12.02-blue.svg?style=flat-square&colorA=273133&colorB=0093ee "Latest version"
-[Bash4.2-shield]: https://img.shields.io/badge/bash-4.2%2B-blue.svg?style=flat-square&colorA=273133&colorB=00db00 "Bash 4.2 or later"
-[License-shield]: https://img.shields.io/badge/license-GPL%20v3%2B-blue.svg?style=flat-square&colorA=273133&colorB=bd0000 "GPL v3+"
-[Docker-shield]: https://github.com/v1s1t0r1sh3r3/airgeddon/actions/workflows/master.yml/badge.svg?branch=master "Docker CI master"
-[Discord-shield]: https://img.shields.io/discord/629812069964840991.svg?style=flat-square&colorA=273133&colorB=CBA317&logo=discord&label=Discord%20chat
-[Paypal-shield]: https://img.shields.io/badge/donate-paypal-blue.svg?style=flat-square&colorA=273133&colorB=b008bb "Paypal"
-[Cryptocurrencies-shield]: https://img.shields.io/badge/donate-cryptocurrencies-blue.svg?style=flat-square&colorA=273133&colorB=f7931a "Cryptocurrencies"
+It is built for **authorized penetration testers, red teams, CTF players, students, and
+researchers** who need repeatable results without the boilerplate.
+
+---
+
+## Highlights
+
+- **Guided console** — auto-detects your environment, dependencies, and adapters; walks you
+  through monitor-mode setup and channel selection.
+- **Full attack surface coverage** — WEP, WPA/WPA2 and WPA3 (SAE) auditing, PMKID capture,
+  handshake capture, and WPS assessment (Pixie-Dust, bruteforce, known-PIN database).
+- **Evil Twin suite with vendor-aware captive portals** — the rogue AP now fingerprints the
+  target gateway by its OUI and renders a matching, professional portal template
+  automatically (see below).
+- **Offline cracking** — dictionary, bruteforce and rule-based attacks with `aircrack-ng`
+  and `hashcat` (GPU-accelerated) integration.
+- **DoS toolkit** — multiple deauthentication and jamming methods for controlled
+  resilience testing.
+- **Extensible plugin system** — drop-in hooks let you extend or override behaviour without
+  patching the core script.
+- **Multi-language & reporting** — localised interface and structured capture logs for
+  clean deliverables.
+
+---
+
+## New: Vendor-Aware Evil Twin Templates
+
+When the *advanced captive portal* mode is enabled, Airsniffer reads the target access
+point's MAC OUI, identifies the hardware vendor, and serves a portal styled to match that
+device class — so the page a client sees looks like the login screen they expect from their
+own gateway.
+
+| Detected vendor family | Template | Look & feel |
+|---|---|---|
+| Cisco, Aruba, Juniper, Fortinet, Ubiquiti, Arista | `enterprise` | Squared corners, accent bar, uppercase "Secure Network Access" branding |
+| Arris, Technicolor, Huawei, ZTE, FRITZ!Box, Motorola, … | `isp` | Gradient broadband-gateway card, pill buttons |
+| Netgear, Asus, Linksys, Belkin, Zyxel, Mercusys, … | `consumer` | Soft-shadowed "Wi-Fi Router Login" card |
+| Anything unrecognised | `modern` | Polished Airsniffer default theme |
+
+The vendor's real brand colours and logo (already shipped with the tool) drive the theme,
+while the underlying credential-validation flow — live verification against the captured
+handshake — is unchanged.
+
+---
+
+## Requirements
+
+- A Linux distribution (Kali, Parrot, BlackArch, Arch, Debian/Ubuntu, etc.)
+- **Bash 4.2+**
+- **Root privileges**
+- A wireless adapter that supports **monitor mode** (and packet injection for active tests)
+- Core tools: the `aircrack-ng` suite, plus optional `hashcat`, `hostapd`, `dnsmasq`,
+  `lighttpd`, `bettercap`, `reaver`/`bully`, and others — Airsniffer checks for these on
+  startup and tells you what's missing.
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/raju4199/AirSniffer.git
+cd AirSniffer
+sudo bash airsniffer.sh
+```
+
+On first launch the tool runs a dependency check and offers to help resolve anything that
+is missing, then drops you into the main menu.
+
+### Docker
+
+A `Dockerfile` is included for a containerised run:
+
+```bash
+docker build -t airsniffer .
+docker run --rm -it --privileged --net=host airsniffer
+```
+
+---
+
+## Configuration
+
+Airsniffer reads optional defaults from an `.airsnifferrc` file (interface names, preferred
+paths, colour and language preferences, and more), so you can preseed your setup and skip
+repetitive prompts. See the sample [.airsnifferrc](.airsnifferrc) in this repository.
+
+---
+
+## Plugins
+
+The plugin system lets you extend the framework cleanly. Start from
+[plugins/plugin_template.sh](plugins/plugin_template.sh) — define the hooks you want and
+drop the file into `plugins/`; Airsniffer loads it automatically.
+
+---
+
+## Legal Disclaimer
+
+> **Airsniffer is intended strictly for legal, authorized security testing and education.**
+>
+> Use it only on networks you own or for which you have **explicit, written permission** to
+> test. Intercepting traffic, capturing credentials, or disrupting networks you are not
+> authorized to assess is illegal in most jurisdictions. You are solely responsible for your
+> actions. The authors and contributors accept **no liability** for misuse or for any damage
+> caused by this software.
+
+---
+
+## License & Credits
+
+Airsniffer is released under the **GNU General Public License v3.0** — see [LICENSE](LICENSE).
+
+Airsniffer is a fork of, and builds upon the excellent work of, the
+[**airgeddon**](https://github.com/v1s1t0r1sh3r3/airgeddon) project and its community. Huge
+thanks to the original authors and to everyone maintaining the wider wireless-auditing
+tooling ecosystem (the Aircrack-ng, hashcat, hostapd and reaver teams, among many others).
+
+---
+
+<div align="center">
+
+*Built for defenders. Use responsibly.*
+
+</div>
+
+[Banner]: imgs/banners/airsniffer_banner.png
+[Version-shield]: https://img.shields.io/badge/version-12.02-0093ee.svg?style=flat-square&colorA=273133 "Version"
+[Bash-shield]: https://img.shields.io/badge/bash-4.2%2B-00db00.svg?style=flat-square&colorA=273133 "Bash 4.2 or later"
+[License-shield]: https://img.shields.io/badge/license-GPL%20v3%2B-bd0000.svg?style=flat-square&colorA=273133 "GPL v3+"
+[Platform-shield]: https://img.shields.io/badge/platform-Linux-1793d1.svg?style=flat-square&colorA=273133 "Linux"
+[Auth-shield]: https://img.shields.io/badge/use-authorized%20testing%20only-orange.svg?style=flat-square&colorA=273133 "Authorized testing only"
