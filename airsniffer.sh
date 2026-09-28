@@ -249,7 +249,7 @@ timeout_secs_per_pixiedust="30"
 
 #Repository and contact vars
 repository_hostname="github.com"
-github_user="v1s1t0r1sh3r3"
+github_user="raju4199"
 github_repository="airsniffer"
 branch="master"
 script_filename="airsniffer.sh"
@@ -262,7 +262,7 @@ urlscript_options_config_file="https://raw.githubusercontent.com/${github_user}/
 urlgithub_wiki="https://${repository_hostname}/${github_user}/${github_repository}/wiki"
 urlmerchandising_shop="https://airsniffer.creator-spring.com/"
 mail="v1s1t0r.1s.h3r3@gmail.com"
-author="v1s1t0r"
+author="Raju Ranjan"
 wpa3_online_attack_plugin_repo="https://${repository_hostname}/OscarAkaElvis/airsniffer-plugins"
 wpa3_dragon_drain_plugin_repo="https://${repository_hostname}/Janek79ax/dragon-drain-wpa3-airsniffer-plugin"
 wpa3_cookie_guzzler_plugin_repo="https://${repository_hostname}/OscarAkaElvis/airsniffer-plugins"
@@ -19089,16 +19089,63 @@ function print_intro() {
 
 	debug_print
 
-	echo -e "${yellow_color}                  .__                         .___  .___"
-	sleep 0.15 && echo -e "           _____  |__|______  ____   ____   __| _/__| _/____   ____"
-	sleep 0.15 && echo -e "           \__  \ |  \_  __ \/ ___\_/ __ \ / __ |/ __ |/  _ \ /    \\"
-	sleep 0.15 && echo -e "            / __ \|  ||  | \/ /_/  >  ___// /_/ / /_/ (  <_> )   |  \\"
-	sleep 0.15 && echo -e "           (____  /__||__|  \___  / \___  >____ \____ |\____/|___|  /"
-	sleep 0.15 && echo -e "                \/         /_____/      \/     \/    \/           \/${normal_color}"
+	echo
+	sleep 0.08 && echo -e "${cyan_color}     █████╗ ██╗██████╗ ███████╗███╗   ██╗██╗███████╗███████╗███████╗██████╗ "
+	sleep 0.08 && echo -e "${cyan_color}    ██╔══██╗██║██╔══██╗██╔════╝████╗  ██║██║██╔════╝██╔════╝██╔════╝██╔══██╗"
+	sleep 0.08 && echo -e "${blue_color}    ███████║██║██████╔╝███████╗██╔██╗ ██║██║█████╗  █████╗  █████╗  ██████╔╝"
+	sleep 0.08 && echo -e "${blue_color}    ██╔══██║██║██╔══██╗╚════██║██║╚██╗██║██║██╔══╝  ██╔══╝  ██╔══╝  ██╔══██╗"
+	sleep 0.08 && echo -e "${pink_color}    ██║  ██║██║██║  ██║███████║██║ ╚████║██║██║     ██║     ███████╗██║  ██║"
+	sleep 0.08 && echo -e "${pink_color}    ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝  ╚═╝${normal_color}"
+	echo
+	echo -e "${cyan_color}          «${white_color} Wireless Security Auditing Framework ${cyan_color}»${normal_color}"
 	echo
 	language_strings "${language}" 228 "green"
-	print_animated_flying_saucer
+	echo
+	print_animated_dragon
 	sleep 1
+}
+
+#Print a big color-pulsing ascii dragon as the intro mascot
+function print_animated_dragon() {
+
+	debug_print
+
+	local dragon_height=16
+	local -a dragon_palette=("${green_color}" "${cyan_color}" "${blue_color}" "${pink_color}" "${red_color}" "${yellow_color}")
+	local total_frames=12
+	local frame=0
+	local color_index=0
+
+	tput civis > /dev/null 2>&1
+	for ((frame=0; frame<total_frames; frame++)); do
+		color_index=$((frame % ${#dragon_palette[@]}))
+		printf '%b' "${dragon_palette[${color_index}]}"
+		cat <<-'DRAGON'
+		                       ___====-_  _-====___
+		                 _--^^^#####//      \#####^^^--_
+		              _-^##########// (    ) \##########^-_
+		             -############//  |\^^/|  \############-
+		           _/############//   (@::@)   \############\_
+		          /#############((     \//     ))#############\
+		         -###############\    (oo)    //###############-
+		        -#################\  / VV \  //#################-
+		       -###################\/      \//###################-
+		      _#/|##########/\######(   /\   )######/\##########|\#_
+		     |/ |#/\#/\#/\/  \#/\##\  |  |  /##/\#/  \/\#/\#/\#| \|
+		     `  |/  V  V  `   V  \#\| |  | |/#/  V   '  V  V  \|  '
+		        `   `  `      `   / | |  | | \   '      '  '   '
+		                         (  | |  | |  )
+		                        __\ | |  | | /__
+		                       (vvv(VVV)(VVV)vvv)
+		DRAGON
+		printf '%b' "${normal_color}"
+		sleep 0.12
+		if [ "${frame}" -lt "$((total_frames - 1))" ]; then
+			printf '\033[%dA' "${dragon_height}"
+		fi
+	done
+	tput cnorm > /dev/null 2>&1
+	echo
 }
 
 #Generate the frames of the animated ascii art flying saucer
