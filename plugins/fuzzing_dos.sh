@@ -104,18 +104,23 @@ fuzzing_dos_authorization_gate() {
 	esac
 }
 
-#Build the common argument list for the engine from Airsniffer's target vars.
-fuzzing_dos_common_args() {
+#Build the common engine arguments into the fuzzing_dos_args array. Using an
+#array (not a space-joined string) keeps values with spaces intact - e.g. an
+#ESSID like "Home Y28 5G" stays one --ssid value instead of being word-split.
+fuzzing_dos_build_args() {
 	local outdir="${1}"
 	local sta_mac="${clients_bssid:-BB:BB:BB:BB:BB:BB}"
-	printf '%s' "--mode ${fuzzing_dos_mode} --fuzz-mode ${fuzzing_dos_fuzz_mode}"
-	printf ' %s' "--target ${fuzzing_dos_target}"
-	printf ' %s' "--iface ${interface:-wlan0mon}"
-	printf ' %s' "--ap-mac ${bssid:-AA:AA:AA:AA:AA:AA}"
-	printf ' %s' "--sta-mac ${sta_mac}"
-	printf ' %s' "--ssid ${essid:-TARGET_SSID}"
-	printf ' %s' "--channel ${channel:-1}"
-	printf ' %s' "--logdir ${outdir}"
+	fuzzing_dos_args=(
+		--mode "${fuzzing_dos_mode}"
+		--fuzz-mode "${fuzzing_dos_fuzz_mode}"
+		--target "${fuzzing_dos_target}"
+		--iface "${interface:-wlan0mon}"
+		--ap-mac "${bssid:-AA:AA:AA:AA:AA:AA}"
+		--sta-mac "${sta_mac}"
+		--ssid "${essid:-TARGET_SSID}"
+		--channel "${channel:-1}"
+		--logdir "${outdir}"
+	)
 }
 
 #Setup step: pick the wireless interface using Airsniffer's core selector.
@@ -225,8 +230,8 @@ fuzzing_dos_run() {
 	local outdir="${tmpdir:-/tmp/}fuzzing_dos"
 	mkdir -p "${outdir}" 2> /dev/null
 
-	local args
-	args="$(fuzzing_dos_common_args "${outdir}")"
+	local fuzzing_dos_args=()
+	fuzzing_dos_build_args "${outdir}"
 
 	if [ "${fuzzing_dos_mode}" = "live" ]; then
 		if ! fuzzing_dos_authorization_gate; then
@@ -240,17 +245,21 @@ fuzzing_dos_run() {
 		echo -e "${yellow_color}Setting ${interface} to channel ${channel}...${normal_color}"
 		iw dev "${interface}" set channel "${channel}" > /dev/null 2>&1
 		recalculate_windows_sizes 2> /dev/null
+		#Build a properly shell-quoted command so values with spaces (e.g. the
+		#ESSID) survive being run in a separate window via manage_output.
+		local live_cmd
+		printf -v live_cmd '%q ' "${py}" "${fuzzing_dos_engine}" \
+			--attack "${attack}" --frame "${frame}" "${fuzzing_dos_args[@]}"
 		#Launch live runs in their own window so the main UI stays responsive.
 		manage_output "+j -bg \"#000000\" -fg \"#00FF00\" -T \"Fuzzing DoS (${attack})\"" \
-			"${py} ${fuzzing_dos_engine} --attack ${attack} --frame ${frame} ${args}" \
+			"${live_cmd}" \
 			"Fuzzing DoS (${attack})"
 		echo -e "${green_color}Live ${attack} run launched.${normal_color} Output/exploits: ${outdir}"
 	else
 		#Simulation runs inline so the operator sees the full flow immediately.
 		echo -e "${blue_color}Running SIMULATION (nothing is transmitted)...${normal_color}"
 		echo
-		# shellcheck disable=SC2086
-		"${py}" "${fuzzing_dos_engine}" --attack "${attack}" --frame "${frame}" ${args}
+		"${py}" "${fuzzing_dos_engine}" --attack "${attack}" --frame "${frame}" "${fuzzing_dos_args[@]}"
 		echo
 		echo -e "${green_color}Simulation output / generated exploits:${normal_color} ${outdir}"
 	fi
