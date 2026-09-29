@@ -118,14 +118,85 @@ fuzzing_dos_common_args() {
 	printf ' %s' "--logdir ${outdir}"
 }
 
+#Setup step: pick the wireless interface using Airsniffer's core selector.
+fuzzing_dos_select_interface() {
+	select_interface
+	fuzzing_dos_pause
+}
+
+#Setup step: put the adapter in monitor mode, but only if it is not already.
+#Reuses Airsniffer's monitor_option and the core ifacemode state variable.
+fuzzing_dos_ensure_monitor() {
+	if [ -z "${interface}" ]; then
+		echo
+		echo -e "${red_color}No interface selected.${normal_color} Use option 1 (select interface) first."
+		fuzzing_dos_pause
+		return 1
+	fi
+	if [ "${ifacemode}" = "Monitor" ]; then
+		echo
+		echo -e "${green_color}${interface} is already in monitor mode.${normal_color} Nothing to do."
+		fuzzing_dos_pause
+		return 0
+	fi
+	echo
+	echo -e "${yellow_color}Putting ${interface} into monitor mode...${normal_color}"
+	monitor_option "${interface}"
+	fuzzing_dos_pause
+}
+
+#Setup step: scan the air, list APs and lock onto one target.
+#explore_for_targets_option sets bssid/essid/channel/enc for the whole session.
+fuzzing_dos_select_target() {
+	if [ -z "${interface}" ]; then
+		echo
+		echo -e "${red_color}No interface selected.${normal_color} Use option 1 (select interface) first."
+		fuzzing_dos_pause
+		return 1
+	fi
+	if [ "${ifacemode}" != "Monitor" ]; then
+		echo
+		echo -e "${yellow_color}${interface} is not in monitor mode.${normal_color} Enabling it first..."
+		if ! monitor_option "${interface}"; then
+			fuzzing_dos_pause
+			return 1
+		fi
+	fi
+	explore_for_targets_option "WPA3"
+	if [ -n "${bssid}" ]; then
+		echo
+		echo -e "${green_color}Target locked:${normal_color} ${essid:-<hidden>} (${bssid}, ch ${channel})"
+	fi
+	fuzzing_dos_pause
+}
+
+#Guard: attacks need a locked target. Warn (and block live) when none is set.
+fuzzing_dos_require_target() {
+	if [ -n "${bssid}" ]; then
+		return 0
+	fi
+	echo
+	echo -e "${red_color}No target locked.${normal_color} Use option 3 (explore & lock target) first."
+	if [ "${fuzzing_dos_mode}" = "simulate" ]; then
+		echo -e "${yellow_color}Simulation will use placeholder values instead.${normal_color}"
+		return 0
+	fi
+	fuzzing_dos_pause
+	return 1
+}
+
 #Guard: live mode needs a selected interface + target.
 fuzzing_dos_live_prereqs_ok() {
 	if [ -z "${interface}" ]; then
-		echo -e "${red_color}No interface selected.${normal_color} Use option 1 on the WPA3 menu first."
+		echo -e "${red_color}No interface selected.${normal_color} Use option 1 (select interface) first."
+		return 1
+	fi
+	if [ "${ifacemode}" != "Monitor" ]; then
+		echo -e "${red_color}${interface} is not in monitor mode.${normal_color} Use option 2 first."
 		return 1
 	fi
 	if [ -z "${bssid}" ]; then
-		echo -e "${red_color}No target selected.${normal_color} Use option 4 (explore for targets) first."
+		echo -e "${red_color}No target locked.${normal_color} Use option 3 (explore & lock target) first."
 		return 1
 	fi
 	return 0
@@ -194,46 +265,63 @@ fuzzing_dos_menu() {
 		clear
 		fuzzing_dos_title "Fuzzing DoS - WPAxFuzz-style 802.11 fuzzer"
 
-		echo -e "${blue_color}Interface :${normal_color} ${interface:-<none>}"
-		echo -e "${blue_color}Target AP :${normal_color} ${essid:-<none>} ${bssid:+(${bssid}, ch ${channel})}"
+		local mon_color="${red_color}"
+		[ "${ifacemode}" = "Monitor" ] && mon_color="${green_color}"
+		echo -e "${blue_color}Interface :${normal_color} ${interface:-<none>} ${interface:+${mon_color}[${ifacemode:-Managed}]${normal_color}}"
+		if [ -n "${bssid}" ]; then
+			echo -e "${blue_color}Target AP :${normal_color} ${green_color}${essid:-<hidden>}${normal_color} (${bssid}, ch ${channel})"
+		else
+			echo -e "${blue_color}Target AP :${normal_color} ${red_color}<none - explore & lock first>${normal_color}"
+		fi
 		local mode_color="${green_color}"
 		[ "${fuzzing_dos_mode}" = "live" ] && mode_color="${red_color}"
 		echo -e "${blue_color}Mode      :${normal_color} ${mode_color}${fuzzing_dos_mode}${normal_color}   ${blue_color}Fuzz:${normal_color} ${fuzzing_dos_fuzz_mode}   ${blue_color}Direction:${normal_color} ${fuzzing_dos_target}"
 		echo
 
 		echo -e "${green_color} 0.${normal_color} Return to the WPA3 attacks menu"
-		echo -e "${normal_color} 1.  Management-frame fuzzing (beacon/probe/assoc/auth)"
-		echo -e "${normal_color} 2.  Control-frame fuzzing (rts/cts/ack/bar/ba...)"
-		echo -e "${normal_color} 3.  WPA3-SAE fuzzing (Commit/Confirm variants)"
-		echo -e "${normal_color} 4.  Attack module (replay + auto-generate exploit)"
 		print_simple_separator 2> /dev/null
-		echo -e "${normal_color} 5.  Toggle mode (simulate <-> live)"
-		echo -e "${normal_color} 6.  Toggle fuzz mode (random <-> standard)"
-		echo -e "${normal_color} 7.  Toggle direction (ap <-> sta)"
+		echo -e "${yellow_color}Setup / target${normal_color}"
+		echo -e "${normal_color} 1.  Select wireless interface"
+		echo -e "${normal_color} 2.  Put adapter in monitor mode (if not already)"
+		echo -e "${normal_color} 3.  Explore for targets & lock target"
+		print_simple_separator 2> /dev/null
+		echo -e "${yellow_color}Attacks${normal_color}"
+		echo -e "${normal_color} 4.  Management-frame fuzzing (beacon/probe/assoc/auth)"
+		echo -e "${normal_color} 5.  Control-frame fuzzing (rts/cts/ack/bar/ba...)"
+		echo -e "${normal_color} 6.  WPA3-SAE fuzzing (Commit/Confirm variants)"
+		echo -e "${normal_color} 7.  Attack module (replay + auto-generate exploit)"
+		print_simple_separator 2> /dev/null
+		echo -e "${yellow_color}Session${normal_color}"
+		echo -e "${normal_color} 8.  Toggle mode (simulate <-> live)"
+		echo -e "${normal_color} 9.  Toggle fuzz mode (random <-> standard)"
+		echo -e "${normal_color}10.  Toggle direction (ap <-> sta)"
 		echo
 
 		read -rp "> " fuzz_option
 		case "${fuzz_option}" in
 			0) return ;;
-			1) fuzzing_dos_run "mgmt" "all" ;;
-			2) fuzzing_dos_run "control" "all" ;;
-			3) fuzzing_dos_run "sae" "all" ;;
-			4) fuzzing_dos_run "attack-module" "all" ;;
-			5)
+			1) fuzzing_dos_select_interface ;;
+			2) fuzzing_dos_ensure_monitor ;;
+			3) fuzzing_dos_select_target ;;
+			4) fuzzing_dos_require_target && fuzzing_dos_run "mgmt" "all" ;;
+			5) fuzzing_dos_require_target && fuzzing_dos_run "control" "all" ;;
+			6) fuzzing_dos_require_target && fuzzing_dos_run "sae" "all" ;;
+			7) fuzzing_dos_require_target && fuzzing_dos_run "attack-module" "all" ;;
+			8)
 				if [ "${fuzzing_dos_mode}" = "simulate" ]; then
 					fuzzing_dos_mode="live"
 				else
 					fuzzing_dos_mode="simulate"
 				fi
 			;;
-			6)
+			9)
 				if [ "${fuzzing_dos_fuzz_mode}" = "random" ]; then
 					fuzzing_dos_fuzz_mode="standard"
 				else
 					fuzzing_dos_fuzz_mode="random"
 				fi
 			;;
-			7)
+			10)
 				if [ "${fuzzing_dos_target}" = "ap" ]; then
 					fuzzing_dos_target="sta"
 				else
