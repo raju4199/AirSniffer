@@ -10,3 +10,6 @@ desktop.ini
 # Python
 __pycache__/
 *.pyc
+
+# Auto-installed reference tools (cloned/built at runtime)
+plugins/tools/
