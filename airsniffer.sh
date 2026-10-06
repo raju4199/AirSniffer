@@ -4668,6 +4668,150 @@ function analyze_wpa3_mfp_status() {
 	return 0
 }
 
+#Detect the Protected Management Frames (802.11w / PMF) status of the target.
+#Sets the global pmf_status to: required | capable | disabled | none | unknown.
+#WPA3/SAE mandates PMF; WPA/WPA2 are probed via RSN capabilities with tshark.
+function detect_pmf_status() {
+
+	debug_print
+
+	pmf_status="unknown"
+
+	if [ "${enc}" = "WPA3" ]; then
+		pmf_status="required"
+		return 0
+	fi
+
+	if [[ "${enc}" != "WPA2" ]] && [[ "${enc}" != "WPA" ]]; then
+		pmf_status="none"
+		return 0
+	fi
+
+	if ! hash tshark 2> /dev/null; then
+		pmf_status="unknown"
+		return 0
+	fi
+
+	if ! check_monitor_enabled "${interface}"; then
+		pmf_status="unknown"
+		return 0
+	fi
+
+	local pmf_capture="${tmpdir}pmf_detect"
+	local pmf_fields pmf_c pmf_r
+	rm -rf "${pmf_capture}"* > /dev/null 2>&1
+	iw dev "${interface}" set channel "${channel}" > /dev/null 2>&1
+	timeout -s SIGTERM 8 airodump-ng -c "${channel}" -d "${bssid}" -w "${pmf_capture}" "${interface}" > /dev/null 2>&1
+
+	pmf_fields=$(tshark -r "${pmf_capture}-01.cap" -Y "wlan.sa == ${bssid} && wlan.fc.type_subtype == 0x08 && wlan.rsn.capabilities.mfpc" -T fields -e wlan.rsn.capabilities.mfpc -e wlan.rsn.capabilities.mfpr 2> /dev/null | grep -E "True|False|1|0" | head -n 1)
+	rm -rf "${pmf_capture}"* > /dev/null 2>&1
+
+	if [ -z "${pmf_fields}" ]; then
+		pmf_status="unknown"
+		return 0
+	fi
+
+	pmf_c=$(echo "${pmf_fields}" | awk '{print $1}' | cut -d ',' -f1)
+	pmf_r=$(echo "${pmf_fields}" | awk '{print $2}' | cut -d ',' -f1)
+	[ "${pmf_c}" = "True" ] && pmf_c=1
+	[ "${pmf_c}" = "False" ] && pmf_c=0
+	[ "${pmf_r}" = "True" ] && pmf_r=1
+	[ "${pmf_r}" = "False" ] && pmf_r=0
+
+	if [ "${pmf_r}" = "1" ]; then
+		pmf_status="required"
+	elif [ "${pmf_c}" = "1" ]; then
+		pmf_status="capable"
+	else
+		pmf_status="disabled"
+	fi
+
+	return 0
+}
+
+#Professional target security analysis panel with an attack recommendation,
+#driven by the detected encryption, authentication and PMF status.
+function print_target_analysis() {
+
+	debug_print
+
+	local auth_label net_type pmf_text pmf_colored rec_text success_text
+	local label_width=20
+
+	auth_label="${types[${selected_target_network}]}"
+	auth_label="${auth_label#"${auth_label%%[![:space:]]*}"}"
+	[ -z "${auth_label}" ] && auth_label="-"
+
+	if [ "${enterprise_network_selected}" -eq 1 ]; then
+		net_type="Enterprise (802.1X / EAP)"
+	else
+		net_type="Personal (PSK)"
+	fi
+
+	case "${pmf_status}" in
+		"required") pmf_text="REQUIRED (mandatory)" ; pmf_colored="${red_color}" ;;
+		"capable")  pmf_text="CAPABLE (optional)"   ; pmf_colored="${yellow_color}" ;;
+		"disabled") pmf_text="DISABLED"             ; pmf_colored="${green_color}" ;;
+		"none")     pmf_text="N/A (no RSN)"         ; pmf_colored="${blue_color}" ;;
+		*)          pmf_text="UNKNOWN"              ; pmf_colored="${blue_color}" ;;
+	esac
+
+	#Attack recommendation / expected deauth-based success
+	case "${enc}" in
+		"WEP")
+			rec_text="Use the WEP attacks menu (no handshake/deauth herding needed)."
+			success_text="${blue_color}N/A (WEP)${normal_color}"
+		;;
+		"OPN")
+			rec_text="Open network - no PSK to capture. Use a captive portal only for credential phishing, or assess OWE separately."
+			success_text="${blue_color}N/A (Open)${normal_color}"
+		;;
+		*)
+			if [ "${enterprise_network_selected}" -eq 1 ]; then
+				rec_text="Enterprise target: use the Enterprise (hostapd-wpe) attack to capture EAP identities/MSCHAPv2 (note: clients that validate the server certificate will refuse)."
+				success_text="${yellow_color}DEPENDS ON CLIENT CERT VALIDATION${normal_color}"
+			else
+				case "${pmf_status}" in
+					"required")
+						rec_text="Deauth will be IGNORED by protected clients. Prefer PMKID capture (clientless) or the WPA3/SAE menu. Herding existing clients is unreliable."
+						success_text="${red_color}LOW${normal_color}"
+					;;
+					"capable")
+						rec_text="PMF is optional: some clients drop on deauth, some won't. Use targeted deauth and keep PMKID capture as a backup."
+						success_text="${yellow_color}MEDIUM${normal_color}"
+					;;
+					"disabled")
+						rec_text="Deauth is effective. Use targeted per-client deauth to force a fast reconnection and capture the handshake."
+						success_text="${green_color}HIGH${normal_color}"
+					;;
+					*)
+						rec_text="PMF status unknown (install tshark for detection). Try targeted deauth; if clients don't drop, switch to PMKID capture."
+						success_text="${blue_color}VERIFY${normal_color}"
+					;;
+				esac
+			fi
+		;;
+	esac
+
+	echo
+	generate_dynamic_line "Target Security Analysis" "title"
+	echo
+	printf "  ${cyan_color}%-${label_width}s${normal_color}%s\n" "ESSID" "${essid}"
+	printf "  ${cyan_color}%-${label_width}s${normal_color}%s   ${blue_color}(OUI %s)${normal_color}\n" "BSSID" "${bssid}" "${bssid:0:8}"
+	printf "  ${cyan_color}%-${label_width}s${normal_color}%s   ${blue_color}(%s)${normal_color}\n" "Channel / Band" "${channel}" "${target_band_id}"
+	printf "  ${cyan_color}%-${label_width}s${normal_color}%s\n" "Network type" "${net_type}"
+	printf "  ${cyan_color}%-${label_width}s${normal_color}%s\n" "Encryption" "${enc}"
+	printf "  ${cyan_color}%-${label_width}s${normal_color}%s\n" "Authentication" "${auth_label}"
+	printf "  ${cyan_color}%-${label_width}s${pmf_colored}%s${normal_color}\n" "PMF (802.11w)" "${pmf_text}"
+	echo
+	print_simple_separator
+	printf "  ${white_color}%s${normal_color}\n" "RECOMMENDATION"
+	printf "  %s\n" "${rec_text}"
+	printf "  ${cyan_color}%-${label_width}s${normal_color}%b\n" "Deauth success" "${success_text}"
+	print_simple_separator
+	echo
+}
+
 #Validate if selected network has the needed type of encryption
 function validate_network_encryption_type() {
 
@@ -5744,7 +5888,7 @@ function warn_pmf_deauth() {
 
 	debug_print
 
-	if [ "${enc}" = "WPA3" ]; then
+	if [ "${enc}" = "WPA3" ] || [ "${pmf_status}" = "required" ] || [ "${pmf_status}" = "capable" ]; then
 		echo
 		language_strings "${language}" 849 "red"
 		language_strings "${language}" 850 "yellow"
@@ -14879,6 +15023,9 @@ function capture_handshake_evil_twin() {
 	if ! validate_network_encryption_type "WPA"; then
 		return 1
 	fi
+
+	detect_pmf_status
+	print_target_analysis
 
 	ask_timeout "capture_handshake_decloak"
 	capture_handshake_window
