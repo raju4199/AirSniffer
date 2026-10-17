@@ -34,6 +34,7 @@ plugin_author="Airsniffer"
 
 #Enabled 1 / Disabled 0
 plugin_enabled=1
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" 2> /dev/null && pwd)/airsniffer_ui.sh" 2> /dev/null || true
 
 ###### PLUGIN REQUIREMENTS ######
 
@@ -71,16 +72,11 @@ modern_attacks_authorized=0
 
 #Small colored helpers that reuse Airsniffer's own color vars.
 modern_attacks_title() {
-	echo
-	echo -e "${pink_color}=========================================================${normal_color}"
-	echo -e "${pink_color}  ${1}${normal_color}"
-	echo -e "${pink_color}=========================================================${normal_color}"
-	echo
+	as_ui_header "${1}"
 }
 
 modern_attacks_pause() {
-	echo
-	read -rp "$(echo -e "${yellow_color}Press [Enter] to return to the menu...${normal_color}")" _pause
+	as_ui_pause
 }
 
 #One-time authorized-use gate. Returns 0 if the operator confirms, 1 otherwise.
@@ -285,13 +281,15 @@ modern_attacks_select_target() {
 
 #Print the current target context (set via this submenu's setup options).
 modern_attacks_print_target() {
-	local mon_color="${red_color}"
-	[ "${ifacemode}" = "Monitor" ] && mon_color="${green_color}"
-	echo -e "${blue_color}Interface : ${normal_color}${interface:-<none>} ${interface:+${mon_color}[${ifacemode:-Managed}]${normal_color}}"
-	if [ -n "${bssid}" ]; then
-		echo -e "${blue_color}Target AP : ${normal_color}${green_color}${essid:-<hidden>}${normal_color} (${bssid}, ch ${channel})"
+	if [ "${ifacemode}" = "Monitor" ]; then
+		as_ui_kv "Interface" "${interface:-<none>} [Monitor]" ok
 	else
-		echo -e "${blue_color}Target AP : ${normal_color}${red_color}<none - explore & lock first>${normal_color}"
+		as_ui_kv "Interface" "${interface:-<none>} [${ifacemode:-Managed}]" warn
+	fi
+	if [ -n "${bssid}" ]; then
+		as_ui_kv "Target AP" "${essid:-<hidden>} (${bssid}, ch ${channel})" ok
+	else
+		as_ui_kv "Target AP" "<none - explore & lock first>" err
 	fi
 	echo
 }
@@ -474,6 +472,83 @@ modern_attacks_sae_fuzz() {
 	modern_attacks_pause
 }
 
+# 7) Dragonblood - WPA3-SAE side-channel password recovery
+modern_attacks_dragonblood() {
+
+	modern_attacks_title "Dragonblood - SAE side-channel password recovery (Vanhoef & Ronen, 2019)"
+	echo -e "SAE's hash-to-curve encoding leaks the password through timing and cache"
+	echo -e "side-channels when the AP offers MODP groups (22/23/24) or Brainpool curves."
+	echo -e "Flow: collect timing with DragonTime, then recover the password offline with"
+	echo -e "DragonForce (a password-partitioning / dictionary attack on the leak)."
+	echo
+	echo -e "${green_color}Timing collect:${normal_color} https://github.com/vanhoefm/dragondrain-and-time  (dragontime)"
+	echo -e "${green_color}Recovery:${normal_color}       https://github.com/vanhoefm/dragonforce"
+	echo -e "${yellow_color}Only works if the target advertises a vulnerable group (MODP/Brainpool).${normal_color}"
+	echo -e "${blue_color}CVE-2019-9494 (cache) / CVE-2019-13377 (Brainpool timing).${normal_color}"
+	echo
+
+	if ! modern_attacks_require_target; then
+		modern_attacks_pause
+		return
+	fi
+	if modern_attacks_ensure_tool "dragontime" "git" "https://github.com/vanhoefm/dragondrain-and-time" "dragontime/dragontime"; then
+		echo -e "${green_color}dragontime ready.${normal_color} Opening a shell prepared for the timing collection."
+		echo -e "${yellow_color}Next: run dragontime against ${bssid} on ch ${channel}, then feed the samples"
+		echo -e "to dragonforce to recover the password. A patched AP will not leak.${normal_color}"
+		recalculate_windows_sizes 2> /dev/null
+		manage_output "+j -bg \"#000000\" -fg \"#00FF00\" -T \"Dragonblood (dragontime)\"" "bash -c 'echo Target: ${bssid} ch ${channel}; echo Run dragontime here, then dragonforce; exec bash'" "Dragonblood (dragontime)"
+	fi
+	modern_attacks_pause
+}
+
+# 8) OWE / Enhanced Open - downgrade / rogue-AP against unauthenticated encryption
+modern_attacks_owe() {
+
+	modern_attacks_title "OWE / Enhanced Open (Opportunistic Wireless Encryption, RFC 8110)"
+	echo -e "OWE encrypts open networks but does NOT authenticate the AP, so it is exposed"
+	echo -e "to active man-in-the-middle and to OWE-transition downgrade: an attacker clones"
+	echo -e "the network as a plain open AP and clients fall back from OWE to open."
+	echo
+	echo -e "${green_color}Method:${normal_color} rogue same-SSID AP (open/OWE-transition) + MitM; no PSK to crack."
+	echo -e "${green_color}Delivery:${normal_color} use Airsniffer's Evil Twin menu against this target - OWE has"
+	echo -e "          no password, so credential capture does not apply; intercept traffic instead."
+	echo -e "${yellow_color}There is no single stable OWE exploit tool; this is an evil-twin/MitM play.${normal_color}"
+	echo
+
+	if ! modern_attacks_require_target; then
+		modern_attacks_pause
+		return
+	fi
+	modern_attacks_print_target
+	echo -e "Advisory module: confirm the target is OWE / OWE-transition, then launch Evil"
+	echo -e "Twin (main menu option 7) as an open/OWE clone and run MitM (bettercap)."
+	modern_attacks_pause
+}
+
+# 9) DPP / Wi-Fi Easy Connect - provisioning (PKEX/bootstrap) attack surface
+modern_attacks_dpp() {
+
+	modern_attacks_title "DPP / Wi-Fi Easy Connect (Device Provisioning Protocol)"
+	echo -e "DPP provisions devices via QR-code / PKEX bootstrapping instead of a PSK. The"
+	echo -e "attack surface is the bootstrap/PKEX exchange: a leaked or low-entropy PKEX code,"
+	echo -e "or a rogue configurator, can let an attacker enroll or MitM a device."
+	echo
+	echo -e "${green_color}Tooling:${normal_color} hostapd / wpa_supplicant ship DPP support (dpp_* ctrl cmds);"
+	echo -e "         practical attacks are research-stage PoCs, not a turnkey tool."
+	echo -e "${green_color}Checks:${normal_color}  look for a weak/shared PKEX code and whether mutual auth is enforced."
+	echo -e "${yellow_color}Advisory only - no reliable public DPP exploit to launch yet.${normal_color}"
+	echo
+
+	if ! modern_attacks_require_target; then
+		modern_attacks_pause
+		return
+	fi
+	modern_attacks_print_target
+	echo -e "Advisory module: if the target uses DPP, test the PKEX code entropy and"
+	echo -e "configurator trust with hostapd/wpa_supplicant dpp_* commands manually."
+	modern_attacks_pause
+}
+
 ###### SUBMENU ######
 
 modern_wifi_attacks_menu() {
@@ -486,20 +561,22 @@ modern_wifi_attacks_menu() {
 		clear
 		modern_attacks_title "Modern Wi-Fi protocol attacks"
 		modern_attacks_print_target
-		echo -e "${green_color} 0.${normal_color} Return to the WPA3 attacks menu"
-		print_simple_separator 2> /dev/null
-		echo -e "${yellow_color}Setup / target${normal_color}"
-		echo -e "${normal_color} 1.  Select wireless interface"
-		echo -e "${normal_color} 2.  Put adapter in monitor mode (if not already)"
-		echo -e "${normal_color} 3.  Explore for targets & lock target"
-		print_simple_separator 2> /dev/null
-		echo -e "${yellow_color}Attacks${normal_color} ${blue_color}(tools auto-install if missing)${normal_color}"
-		echo -e "${normal_color} 4.  SSID Confusion            (CVE-2023-52424)"
-		echo -e "${normal_color} 5.  KRACK                     (key reinstallation)"
-		echo -e "${normal_color} 6.  FragAttacks               (fragment / aggregation)"
-		echo -e "${normal_color} 7.  MacStealer / Framing Frames (client-isolation bypass)"
-		echo -e "${normal_color} 8.  Kr00k                     (all-zero-key decrypt)"
-		echo -e "${normal_color} 9.  SAE / over-the-air fuzzing (Owfuzz / Saecred)"
+		as_ui_sep
+		as_ui_item 0 "Return to the WPA3 attacks menu"
+		as_ui_section "Setup / target"
+		as_ui_item 1 "Select wireless interface"
+		as_ui_item 2 "Put adapter in monitor mode (if not already)"
+		as_ui_item 3 "Explore for targets & lock target"
+		as_ui_section "Attacks (tools auto-install if missing)"
+		as_ui_item 4 "SSID Confusion            (CVE-2023-52424)"
+		as_ui_item 5 "KRACK                     (key reinstallation)"
+		as_ui_item 6 "FragAttacks               (fragment / aggregation)"
+		as_ui_item 7 "MacStealer / Framing Frames (client-isolation bypass)"
+		as_ui_item 8 "Kr00k                     (all-zero-key decrypt)"
+		as_ui_item 9 "SAE / over-the-air fuzzing (Owfuzz / Saecred)"
+		as_ui_item 10 "Dragonblood             (SAE side-channel password recovery)"
+		as_ui_item 11 "OWE / Enhanced Open      (downgrade / rogue-AP MitM)"
+		as_ui_item 12 "DPP / Wi-Fi Easy Connect (provisioning attack surface)"
 		echo
 
 		read -rp "> " modern_option
@@ -514,6 +591,9 @@ modern_wifi_attacks_menu() {
 			7) modern_attacks_macstealer ;;
 			8) modern_attacks_kr00k ;;
 			9) modern_attacks_sae_fuzz ;;
+			10) modern_attacks_dragonblood ;;
+			11) modern_attacks_owe ;;
+			12) modern_attacks_dpp ;;
 			*)
 				echo -e "${red_color}Invalid option.${normal_color}"
 				sleep 1
