@@ -19,6 +19,60 @@ receiver has no way to tell a forged frame from a genuine one, so it disconnects
 PMF (802.11w) adds cryptographic protection to these "robust" management frames.
 A forged frame then fails the integrity check and is dropped.
 
+## Diagrams
+
+**Without PMF — forged deauth succeeds:**
+
+```mermaid
+sequenceDiagram
+    participant C as Client (STA)
+    participant A as Legit AP
+    participant X as Attacker
+    Note over C,A: Associated (no PMF)
+    X->>C: Forged deauth (spoofed AP MAC)
+    Note over C: No integrity check - can't tell real from fake
+    C--xA: Disconnects
+    C-->>X: Reconnects — lured to evil twin
+```
+
+**With PMF — forged deauth dropped, SA Query protects:**
+
+```mermaid
+sequenceDiagram
+    participant C as Client (STA)
+    participant A as Legit AP
+    participant X as Attacker
+    Note over C,A: Associated, PMF on (PTK + IGTK/BIP)
+    X->>C: Forged deauth (no valid MIC)
+    Note over C: MIC check fails -> frame dropped
+    X->>C: Unprotected disassoc (spurious)
+    C->>A: SA Query (protected) "really tearing down?"
+    A->>C: Protected SA Query response
+    Note over C,A: Stays connected
+```
+
+**The gap PMF does not cover — pre-handshake window:**
+
+```mermaid
+flowchart LR
+    S["Association starts"] --> W["Window: no PTK yet<br/>deauth/disassoc UNPROTECTED"]
+    W --> H["4-way handshake<br/>(PTK installed)"]
+    H --> P["PMF active<br/>forged deauth dropped"]
+    W -. "attacker hits here<br/>(pre-handshake deauth)" .-> W
+    style W fill:#5a1a1a,stroke:#ff5555,color:#fff
+    style P fill:#1a5a1a,stroke:#55ff55,color:#fff
+```
+
+**Operator decision flow:**
+
+```mermaid
+flowchart TD
+    Q{"Target PMF?"} -->|Off / WPA2 legacy| D["Classic deauth works<br/>→ evil-twin lure easy"]
+    Q -->|On / WPA3 mandatory| G["Classic deauth = no-op<br/>on established clients"]
+    G --> B["Use PMF-bypass DoS (pmf_dos):<br/>pre-handshake · SA-Query · DragonDrain · Bad-Token"]
+    G --> SE["or social-engineering path<br/>that doesn't kick a live client"]
+```
+
 ## Frame-by-frame comparison
 
 | Frame / case | WPA2 **without PMF** | WPA2/WPA3 **with PMF** |
