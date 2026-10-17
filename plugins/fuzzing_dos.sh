@@ -28,6 +28,7 @@ plugin_description="WPAxFuzz-style 802.11 management/control/SAE fuzzing DoS wit
 plugin_author="Airsniffer"
 
 plugin_enabled=1
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" 2> /dev/null && pwd)/airsniffer_ui.sh" 2> /dev/null || true
 
 ###### PLUGIN REQUIREMENTS ######
 
@@ -47,6 +48,7 @@ fuzzing_dos_engine="${fuzzing_dos_plugin_dir}/fuzzing_dos_engine.py"
 fuzzing_dos_mode="simulate"     # simulate | live
 fuzzing_dos_fuzz_mode="random"  # random | standard
 fuzzing_dos_target="ap"         # ap | sta
+fuzzing_dos_sta_mac=""          # victim client MAC (required for 'sta' direction)
 fuzzing_dos_authorized=0
 
 fuzzing_dos_register_labels() {
@@ -64,16 +66,32 @@ plugin_wpa3_menu_option_language_string="${fuzzing_dos_menu_string_id}"
 ###### HELPERS ######
 
 fuzzing_dos_title() {
-	echo
-	echo -e "${pink_color}=========================================================${normal_color}"
-	echo -e "${pink_color}  ${1}${normal_color}"
-	echo -e "${pink_color}=========================================================${normal_color}"
-	echo
+	as_ui_header "${1}"
 }
 
 fuzzing_dos_pause() {
-	echo
-	read -rp "$(echo -e "${yellow_color}Press [Enter] to continue...${normal_color}")" _pause
+	as_ui_pause
+}
+
+#Validate a MAC: six colon-separated hex octets.
+fuzzing_dos_valid_mac() {
+	[[ "${1}" =~ ^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$ ]]
+}
+
+#Prompt for the victim client MAC used by the 'sta' direction.
+fuzzing_dos_set_sta_mac() {
+	local mac
+	read -rp "$(echo -e "${green_color}Target client MAC (AA:BB:CC:DD:EE:FF, blank to clear): ${normal_color}")" mac
+	if [ -z "${mac}" ]; then
+		fuzzing_dos_sta_mac=""
+		echo -e "${yellow_color}Cleared.${normal_color} 'sta' direction will have no real victim set."
+	elif fuzzing_dos_valid_mac "${mac}"; then
+		fuzzing_dos_sta_mac="${mac}"
+		echo -e "${green_color}Victim client MAC set:${normal_color} ${fuzzing_dos_sta_mac}"
+	else
+		echo -e "${red_color}Invalid MAC format.${normal_color} Not changed."
+	fi
+	fuzzing_dos_pause
 }
 
 #Resolve a usable python interpreter.
@@ -109,7 +127,10 @@ fuzzing_dos_authorization_gate() {
 #ESSID like "Home Y28 5G" stays one --ssid value instead of being word-split.
 fuzzing_dos_build_args() {
 	local outdir="${1}"
-	local sta_mac="${clients_bssid:-BB:BB:BB:BB:BB:BB}"
+	#The core has no single "selected client" variable, so the victim station
+	#MAC is set explicitly via the menu. Fall back to a placeholder only so
+	#simulation can run; the 'sta' direction warns when it is unset.
+	local sta_mac="${fuzzing_dos_sta_mac:-BB:BB:BB:BB:BB:BB}"
 	fuzzing_dos_args=(
 		--mode "${fuzzing_dos_mode}"
 		--fuzz-mode "${fuzzing_dos_fuzz_mode}"
@@ -230,6 +251,17 @@ fuzzing_dos_run() {
 	local outdir="${tmpdir:-/tmp/}fuzzing_dos"
 	mkdir -p "${outdir}" 2> /dev/null
 
+	#The 'sta' direction sends frames TO a victim client; without a real client
+	#MAC the frames go nowhere. Warn (simulate) or block (live).
+	if [ "${fuzzing_dos_target}" = "sta" ] && [ -z "${fuzzing_dos_sta_mac}" ]; then
+		if [ "${fuzzing_dos_mode}" = "live" ]; then
+			echo -e "${red_color}'sta' direction needs a target client MAC.${normal_color} Set it (option 11) first."
+			fuzzing_dos_pause
+			return
+		fi
+		echo -e "${yellow_color}No victim client MAC set - simulating toward a placeholder MAC.${normal_color}"
+	fi
+
 	local fuzzing_dos_args=()
 	fuzzing_dos_build_args "${outdir}"
 
@@ -274,36 +306,45 @@ fuzzing_dos_menu() {
 		clear
 		fuzzing_dos_title "Fuzzing DoS - WPAxFuzz-style 802.11 fuzzer"
 
-		local mon_color="${red_color}"
-		[ "${ifacemode}" = "Monitor" ] && mon_color="${green_color}"
-		echo -e "${blue_color}Interface :${normal_color} ${interface:-<none>} ${interface:+${mon_color}[${ifacemode:-Managed}]${normal_color}}"
-		if [ -n "${bssid}" ]; then
-			echo -e "${blue_color}Target AP :${normal_color} ${green_color}${essid:-<hidden>}${normal_color} (${bssid}, ch ${channel})"
+		if [ "${ifacemode}" = "Monitor" ]; then
+			as_ui_kv "Interface" "${interface:-<none>} [Monitor]" ok
 		else
-			echo -e "${blue_color}Target AP :${normal_color} ${red_color}<none - explore & lock first>${normal_color}"
+			as_ui_kv "Interface" "${interface:-<none>} [${ifacemode:-Managed}]" warn
 		fi
-		local mode_color="${green_color}"
-		[ "${fuzzing_dos_mode}" = "live" ] && mode_color="${red_color}"
-		echo -e "${blue_color}Mode      :${normal_color} ${mode_color}${fuzzing_dos_mode}${normal_color}   ${blue_color}Fuzz:${normal_color} ${fuzzing_dos_fuzz_mode}   ${blue_color}Direction:${normal_color} ${fuzzing_dos_target}"
+		if [ -n "${bssid}" ]; then
+			as_ui_kv "Target AP" "${essid:-<hidden>} (${bssid}, ch ${channel})" ok
+		else
+			as_ui_kv "Target AP" "<none - explore & lock first>" err
+		fi
+		if [ "${fuzzing_dos_mode}" = "live" ]; then
+			as_ui_kv "Mode" "live   Fuzz: ${fuzzing_dos_fuzz_mode}   Direction: ${fuzzing_dos_target}" err
+		else
+			as_ui_kv "Mode" "simulate   Fuzz: ${fuzzing_dos_fuzz_mode}   Direction: ${fuzzing_dos_target}" ok
+		fi
+		if [ "${fuzzing_dos_target}" = "sta" ]; then
+			if [ -n "${fuzzing_dos_sta_mac}" ]; then
+				as_ui_kv "Victim STA" "${fuzzing_dos_sta_mac}" ok
+			else
+				as_ui_kv "Victim STA" "<none - set via option 11>" err
+			fi
+		fi
 		echo
-
-		echo -e "${green_color} 0.${normal_color} Return to the WPA3 attacks menu"
-		print_simple_separator 2> /dev/null
-		echo -e "${yellow_color}Setup / target${normal_color}"
-		echo -e "${normal_color} 1.  Select wireless interface"
-		echo -e "${normal_color} 2.  Put adapter in monitor mode (if not already)"
-		echo -e "${normal_color} 3.  Explore for targets & lock target"
-		print_simple_separator 2> /dev/null
-		echo -e "${yellow_color}Attacks${normal_color}"
-		echo -e "${normal_color} 4.  Management-frame fuzzing (beacon/probe/assoc/auth)"
-		echo -e "${normal_color} 5.  Control-frame fuzzing (rts/cts/ack/bar/ba...)"
-		echo -e "${normal_color} 6.  WPA3-SAE fuzzing (Commit/Confirm variants)"
-		echo -e "${normal_color} 7.  Attack module (replay + auto-generate exploit)"
-		print_simple_separator 2> /dev/null
-		echo -e "${yellow_color}Session${normal_color}"
-		echo -e "${normal_color} 8.  Toggle mode (simulate <-> live)"
-		echo -e "${normal_color} 9.  Toggle fuzz mode (random <-> standard)"
-		echo -e "${normal_color}10.  Toggle direction (ap <-> sta)"
+		as_ui_sep
+		as_ui_item 0 "Return to the WPA3 attacks menu"
+		as_ui_section "Setup / target"
+		as_ui_item 1 "Select wireless interface"
+		as_ui_item 2 "Put adapter in monitor mode (if not already)"
+		as_ui_item 3 "Explore for targets & lock target"
+		as_ui_section "Attacks"
+		as_ui_item 4 "Management-frame fuzzing (beacon/probe/assoc/auth)"
+		as_ui_item 5 "Control-frame fuzzing (rts/cts/ack/bar/ba...)"
+		as_ui_item 6 "WPA3-SAE fuzzing (Commit/Confirm variants)"
+		as_ui_item 7 "Attack module (replay + auto-generate exploit)"
+		as_ui_section "Session"
+		as_ui_item 8 "Toggle mode (simulate <-> live)"
+		as_ui_item 9 "Toggle fuzz mode (random <-> standard)"
+		as_ui_item 10 "Toggle direction (ap <-> sta)"
+		as_ui_item 11 "Set target client MAC (for 'sta' direction)"
 		echo
 
 		read -rp "> " fuzz_option
@@ -337,6 +378,7 @@ fuzzing_dos_menu() {
 					fuzzing_dos_target="ap"
 				fi
 			;;
+			11) fuzzing_dos_set_sta_mac ;;
 			*)
 				echo -e "${red_color}Invalid option.${normal_color}"
 				sleep 1

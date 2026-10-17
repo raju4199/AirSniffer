@@ -108,6 +108,13 @@ def make_seed(field, fuzz_mode):
 # Transmitter - simulation vs live (scapy)
 # --------------------------------------------------------------------------- #
 
+def endpoints(cfg, to_sta):
+    """Return (dst, src) MACs for a frame, matching Transmitter.send()."""
+    if to_sta:
+        return cfg["sta_mac"], cfg["ap_mac"]
+    return cfg["ap_mac"], cfg["sta_mac"]
+
+
 class Transmitter:
     def __init__(self, cfg):
         self.cfg = cfg
@@ -194,21 +201,23 @@ def fuzz_fields(cfg, tx, ftype, subtype, fields):
         # One batch = 64 distinct seeds, each sent twice (paper's pairing).
         for _ in range(DISTINCT_SEEDS):
             seed = make_seed(field, cfg["fuzz_mode"])
-            rec = None
             for _pair in range(2):
-                rec = tx.send(ftype, subtype, field, seed, to_sta=to_sta)
+                tx.send(ftype, subtype, field, seed, to_sta=to_sta)
             if check_disruption(cfg):
                 disruptions += 1
                 excluded.add(field)
+                # Record the full seed and the target identity unconditionally,
+                # so the attack module can reproduce the exact crashing frame and
+                # scope replays to the current target - in live mode too, where
+                # tx.send() returns None.
+                dst, src = endpoints(cfg, to_sta)
                 event = {
                     "ts": time.time(), "ftype": ftype, "subtype": subtype,
                     "field": field, "fuzz_mode": cfg["fuzz_mode"],
+                    "seed_hex": seed.hex(), "seed_len": len(seed),
+                    "dst": dst, "src": src,
+                    "bssid": cfg["ap_mac"], "ssid": cfg["ssid"],
                 }
-                if rec:
-                    event.update({"seed_hex": rec["seed_hex"],
-                                  "seed_len": rec["seed_len"],
-                                  "dst": rec["dst"], "src": rec["src"],
-                                  "bssid": rec["bssid"]})
                 log_event(cfg, event)
                 print("  [!] disruption on %s/%s -> pausing, excluding field"
                       % (subtype, field))
@@ -263,7 +272,8 @@ def run_sae(cfg, tx):
         if check_disruption(cfg):
             total += 1
             log_event(cfg, {"ts": time.time(), "ftype": 0, "subtype": "auth",
-                            "field": "SAE:" + v, "fuzz_mode": cfg["fuzz_mode"]})
+                            "field": "SAE:" + v, "fuzz_mode": cfg["fuzz_mode"],
+                            "bssid": cfg["ap_mac"], "ssid": cfg["ssid"]})
             print("  [!] SAE disruption on variant %s" % v)
         else:
             print("  [*] SAE variant %s sent (%d frames)" % (v, burst))
@@ -306,10 +316,19 @@ def run_attack_module(cfg, tx):
         entries = [json.loads(line) for line in fh if line.strip()]
 
     print("[+] Attack module: %d logged disruption(s) to verify" % len(entries))
+    skipped_stale = 0
     for e in entries:
         field = e.get("field", "")
         if field.startswith("SAE:"):
             print("  [-] skipping SAE entry (attack module excludes SAE): %s" % field)
+            continue
+
+        # Only act on disruptions found against the currently locked target.
+        # The log is shared/appended across fuzz passes, so without this an old
+        # entry from another AP would be replayed and baked into an exploit.
+        entry_bssid = e.get("bssid")
+        if entry_bssid and entry_bssid != cfg["ap_mac"]:
+            skipped_stale += 1
             continue
 
         subtype = e["subtype"]
@@ -339,6 +358,9 @@ def run_attack_module(cfg, tx):
             ofh.write(exploit)
         print("  [+] confirmed %s/%s -> exploit written: %s"
               % (subtype, field, outpath))
+    if skipped_stale:
+        print("  [-] skipped %d disruption(s) logged against a different target"
+              % skipped_stale)
     print("[=] attack module done: %d exploit(s) generated" % confirmed)
     return confirmed
 
