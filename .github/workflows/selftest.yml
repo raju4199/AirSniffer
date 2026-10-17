@@ -1,0 +1,54 @@
+name: plugin-selftest
+
+# Reliability gate: run the Airsniffer plugin self-test (static + simulation
+# checks) on every push and pull request. No Wi-Fi hardware is needed - the
+# engines run in simulate mode and the checks are static.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'plugins/**'
+      - 'airsniffer.sh'
+      - '.github/workflows/selftest.yml'
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - 'airsniffer.sh'
+      - '.github/workflows/selftest.yml'
+  workflow_dispatch:
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run plugin self-test
+        run: bash plugins/selftest.sh
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    # Informational: surfaces shell issues without blocking the merge, since the
+    # plugins carry intentional `#shellcheck disable` directives.
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shellcheck plugins
+        run: |
+          shopt -s nullglob
+          for f in plugins/*.sh; do
+            echo "== $f =="
+            shellcheck -S warning "$f" || true
+          done
