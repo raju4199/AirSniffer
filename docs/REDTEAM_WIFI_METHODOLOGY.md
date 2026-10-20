@@ -139,8 +139,15 @@ A credible red-team report also states whether the activity was *detectable*.
 - Verify PMF enforcement and client auto-join misconfiguration.
 - Note which attacks were logged or alerted vs silent.
 
-**Airsniffer:** posture facts surfaced in triage + target analysis panel; active
-detection testing is **[planned]**.
+**Airsniffer:** posture facts surfaced in triage + target analysis panel;
+**[available] Detection-perspective testing** (`detection_test.sh` +
+`detection_test_engine.py`) runs four probes: **rogue-ap** beacons a uniquely-
+tagged evil-twin canary and listens for WIDS/WIPS containment aimed at it;
+**deauth** emits a counted burst and watches for a WIPS response; **pmf-check**
+(passive) decodes PMF enforcement from the AP's RSN Capabilities (deciding
+whether deauth is viable at all, Stage 5); **autojoin** (passive) flags clients
+leaking a preferred-network list. Simulate + live modes; the engine never
+reports a detection it did not observe.
 
 ## Stage 8 — Reporting
 
@@ -163,7 +170,7 @@ remediation. Core remediations to recommend:
 | 4 Protocol | implementation | Fuzzing DoS, Modern attacks | available |
 | 5 DoS | availability | DoS menu, Fuzzing DoS, **PMF-bypass DoS** | available |
 | 6 Post-ex | network | bettercap handoff | manual |
-| 7 Detection | defensive | triage posture facts | partial (active testing planned) |
+| 7 Detection | defensive | triage posture facts + **Detection-perspective testing** (rogue-ap / deauth / pmf-check / autojoin) | available |
 
 ## Design principles this tool holds to
 

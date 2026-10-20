@@ -38,6 +38,11 @@ run_sim plugins/fuzzing_dos_engine.py --attack sae --mode simulate --seed 1 --lo
 for s in prehandshake saquery dragondrain badtoken; do
 	run_sim plugins/pmf_dos_engine.py --strategy "$s" --mode simulate --seed 1 --count 4 --logdir "$OUT"
 done
+for p in rogue-ap deauth pmf-check autojoin; do
+	run_sim plugins/detection_test_engine.py --probe "$p" --mode simulate --seed 1 --count 4 --listen 1 --logdir "$OUT"
+done
+# detection pmf-check decodes a real RSN Capabilities value (MFPC+MFPR = PMF required).
+run_sim plugins/detection_test_engine.py --probe pmf-check --mode simulate --rsn-caps 0x00c0 --logdir "$OUT"
 # recon + mac-acl + portal engines need input; feed a tiny synthetic CSV / POST.
 printf '\nBSSID, First time seen, Last time seen, channel, Speed, Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP, ID-length, ESSID, Key\nAA:AA:AA:AA:AA:01, , , 6, 130, WPA2 WPA3 , CCMP , PSK SAE, -50, 100, 0, 0.0.0.0, 3, lab, \n\nStation MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs\n11:11:11:11:11:01, , , -40, 10, AA:AA:AA:AA:AA:01, \n' > "$OUT/s.csv"
 if "$PY" plugins/recon_triage_engine.py "$OUT/s.csv" >/dev/null 2>&1; then ok "sim: recon_triage_engine"; else bad "recon_triage_engine"; fi
